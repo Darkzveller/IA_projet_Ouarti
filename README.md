@@ -24,6 +24,7 @@ Les 4 machines finissent avec le même environnement Python (conda
 - [Étape 7 — Configuration Linux](#étape-7--gaming-linux-uniquement)
 - [Étape 8 — Régler le jeu](#étape-8--régler-le-jeu)
 - [Étape 9 — Vérifier que ça marche](#étape-9--vérifier-que-ça-marche)
+- [Synchronisation Git sous Windows](#synchronisation-git-sous-windows)
 - [Référence Makefile Python](#référence-makefile-python)
 - [Point de vigilance](#point-de-vigilance)
 
@@ -120,6 +121,181 @@ Lancer les deux notebooks du dépôt :
 - `test_gym.ipynb` (interface Gym)
 
 **Tant qu'ils ne tournent pas, inutile d'aller plus loin.**
+
+---
+
+
+## Synchronisation Git sous Windows
+
+Deux scripts `.bat` sont fournis pour simplifier la synchronisation du projet
+avec le dépôt Git distant :
+
+- `git_pull.bat` : récupère la version distante du projet ;
+- `git_push.bat` : enregistre les modifications locales puis les envoie sur le dépôt.
+
+Ils doivent être lancés depuis le dossier du projet Git, ou conservés à la
+racine du dépôt.
+
+### `git_pull.bat` — récupérer la version distante
+
+Contenu du script :
+
+```bat
+@echo off
+
+git fetch origin
+git reset --hard origin/main
+git pull
+```
+
+Son fonctionnement est le suivant :
+
+1. `git fetch origin` contacte le dépôt distant nommé `origin` et récupère les
+   dernières informations disponibles sans encore modifier les fichiers locaux.
+2. `git reset --hard origin/main` force ensuite le dossier local à devenir
+   exactement identique à la branche distante `origin/main`.
+3. `git pull` vérifie enfin s'il reste des changements distants à récupérer.
+
+En pratique, ce script sert donc à **remettre rapidement la machine sur la
+dernière version disponible de la branche `main`**.
+
+> **Attention :** `git reset --hard origin/main` supprime les modifications locales
+> non enregistrées dans un commit. Il faut donc éviter d'utiliser `git_pull.bat`
+> si vous avez du travail local que vous souhaitez conserver.
+
+Workflow conseillé avant de lancer le script :
+
+```text
+Ai-je des modifications ou des commits locaux à conserver ?
+                │
+          ┌─────┴─────┐
+          │           │
+         NON         OUI
+          │           │
+  git_pull.bat     NE PAS lancer
+                   git_pull.bat
+                       │
+                       ▼
+              pousser les commits
+              sur le dépôt distant
+              ou créer une sauvegarde
+              dans une autre branche
+```
+
+> **Important : un `git commit` local ne suffit pas.**
+> Tant que ce commit n'est pas présent sur `origin/main` (ou sauvegardé ailleurs),
+> `git reset --hard origin/main` peut le supprimer de la branche courante.
+
+Pour simplement vérifier l'état du projet avant de récupérer la version distante :
+
+```powershell
+git status
+```
+
+Pour vérifier s'il existe des commits locaux qui ne sont pas encore sur le dépôt distant :
+
+```powershell
+git log origin/main..HEAD --oneline
+```
+
+Si cette commande affiche un ou plusieurs commits, **ne lancez pas `git_pull.bat`**
+tant que ces commits n'ont pas été poussés ou sauvegardés ailleurs.
+
+---
+
+### `git_push.bat` — envoyer ses modifications
+
+Contenu actuel :
+
+```bat
+echo off
+git status && git add . && git commit -m "ajout sommaire + explication makefile pyhton" && git push
+```
+
+Les commandes sont reliées avec `&&`.
+
+Cela signifie que la commande suivante n'est exécutée que si la précédente
+s'est terminée correctement.
+
+Le script effectue donc :
+
+1. `git status` : affiche les fichiers modifiés, ajoutés ou supprimés ;
+2. `git add .` : ajoute toutes les modifications du projet à la zone de préparation ;
+3. `git commit -m "..."` : crée un commit Git ;
+4. `git push` : envoie ce commit sur le dépôt distant.
+
+Le fonctionnement peut être résumé ainsi :
+
+```text
+Fichiers modifiés
+      │
+      ▼
+ git status
+      │
+      ▼
+  git add .
+      │
+      ▼
+ git commit
+      │
+      ▼
+   git push
+      │
+      ▼
+    GitHub
+```
+
+> Le message de commit est actuellement écrit directement dans le script :
+> `ajout sommaire + explication makefile pyhton`.
+> Toutes les exécutions de ce `.bat` utiliseront donc ce même message tant que
+> le fichier n'est pas modifié.
+
+> `git add .` sélectionne **toutes** les modifications du dossier Git. Il est
+> recommandé de vérifier `git status` avant l'envoi afin de ne pas publier
+> accidentellement un fichier temporaire, un environnement Python, un fichier
+> contenant un secret ou un fichier qui devrait être ignoré par `.gitignore`.
+
+---
+
+### Ordre d'utilisation conseillé
+
+Lorsque plusieurs machines travaillent sur le même projet, le principe est :
+
+```text
+1. Récupérer les dernières modifications
+              │
+              ▼
+        git_pull.bat
+              │
+              ▼
+2. Modifier / coder / tester
+              │
+              ▼
+3. Vérifier les changements
+              │
+              ▼
+          git status
+              │
+              ▼
+4. Envoyer son travail
+              │
+              ▼
+        git_push.bat
+```
+
+Cela permet de partir de la version la plus récente avant de commencer à
+travailler et de partager ensuite les modifications avec les autres machines.
+
+> Ce workflow suppose que `git_pull.bat` est lancé **avant de commencer à travailler**.
+> Si des modifications ou des commits locaux existent déjà, il faut d'abord les
+> sauvegarder correctement sur le dépôt distant ou dans une autre branche.
+
+### Résumé des deux scripts
+
+| Script | Rôle | Commandes principales | Attention |
+|---|---|---|---|
+| `git_pull.bat` | Remettre le projet local exactement sur la dernière version distante de `main` | `fetch`, `reset --hard`, `pull` | Peut supprimer les modifications non commitée **et les commits locaux non poussés** |
+| `git_push.bat` | Envoyer les modifications locales vers le dépôt | `status`, `add`, `commit`, `push` | Ajoute tous les fichiers et utilise un message de commit fixe |
 
 ---
 
