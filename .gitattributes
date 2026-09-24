@@ -1,0 +1,13 @@
+# Normalisation des fins de ligne selon le systeme cible.
+# Evite qu'un script Linux devienne inutilisable apres un passage
+# par une machine Windows (erreur "bad interpreter: /bin/bash^M").
+
+# Par defaut : Git normalise en LF dans le depot
+* text=auto
+
+# Scripts Linux : TOUJOURS en LF, meme sur Windows
+*.sh text eol=lf
+
+# Scripts Windows : TOUJOURS en CRLF
+*.bat text eol=crlf
+*.ps1 text eol=crlf
