@@ -3,7 +3,7 @@
 Le projet entraîne une IA à trouver la trajectoire la plus rapide sur un
 circuit, dans le simulateur Assetto Corsa.
 
-**PC gaming** → font tourner le jeu et l'entraînement de l'IA.
+**PC gaming** → font tourner le jeu et l'entraînement de l'IA.  
 **PC bureautique** → servent à coder et rédiger. Pas besoin du jeu.
 
 Les 4 machines finissent avec le même environnement Python (conda
@@ -11,6 +11,25 @@ Les 4 machines finissent avec le même environnement Python (conda
 
 ---
 
+## Sommaire
+
+- [Présentation](#présentation)
+- [Étape 0 — Récupérer le dossier](#étape-0--récupérer-le-dossier)
+- [Étape 1 — Lancer le script de sa machine](#étape-1--lancer-le-script-de-sa-machine)
+- [Étape 2 — Patienter](#étape-2--patienter)
+- [Étape 3 — Installer le jeu (gaming)](#étape-3--gaming-installer-le-jeu)
+- [Étape 4 — Content Manager + patch CSP](#étape-4--gaming-content-manager--patch-csp)
+- [Étape 5 — Installer le plugin](#étape-5--gaming-installer-le-plugin)
+- [Étape 6 — Pilotes GPU](#étape-6--gaming-pilotes-gpu)
+- [Étape 7 — Configuration Linux](#étape-7--gaming-linux-uniquement)
+- [Étape 8 — Régler le jeu](#étape-8--régler-le-jeu)
+- [Étape 9 — Vérifier que ça marche](#étape-9--vérifier-que-ça-marche)
+- [Référence Makefile Python](#référence-makefile-python)
+- [Point de vigilance](#point-de-vigilance)
+
+---
+
+## Présentation
 ## Étape 0 — Récupérer le dossier
 
 **Si vous n'avez pas encore Git** (cas le plus courant au démarrage) :
@@ -101,6 +120,45 @@ Lancer les deux notebooks du dépôt :
 - `test_gym.ipynb` (interface Gym)
 
 **Tant qu'ils ne tournent pas, inutile d'aller plus loin.**
+
+---
+
+## Référence Makefile Python
+
+Pour les projets Python qui utilisent un **Makefile** afin de gérer automatiquement
+leur environnement virtuel, la documentation complète est disponible ici :
+
+**https://github.com/Darkzveller/Projet_python_makefile_example**
+
+Le principe est simple : le Makefile centralise les commandes courantes du projet
+et utilise directement le Python de l'environnement virtuel.
+
+Commandes principales :
+
+```powershell
+make setup PY=3.10   # crée le venv et installe les dépendances
+make run             # lance le programme avec le Python du venv
+make shell           # ouvre un PowerShell avec le venv activé
+make clean           # supprime le venv sélectionné
+make info            # affiche la configuration utilisée
+```
+
+Arborescence minimale attendue :
+
+```text
+mon_projet/
+├── Makefile
+├── requirements.txt
+└── src/
+    └── main.py
+```
+
+`make setup PY=3.10` mémorise la version choisie dans le projet. Les commandes
+suivantes peuvent donc réutiliser automatiquement cette version sans devoir
+réécrire `PY=3.10`.
+
+> Cette section est une référence complémentaire. Le présent projet IA F1 utilise
+> l'environnement Conda `p309` décrit plus haut.
 
 ---
 
