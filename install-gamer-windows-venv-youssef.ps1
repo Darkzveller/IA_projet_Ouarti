@@ -1,4 +1,4 @@
-# =============================================================
+﻿# =============================================================
 #  PC GAMING (Windows) - Projet IA F1
 #  Version SANS Conda / Anaconda
 #
@@ -12,7 +12,7 @@
 #    - clone assetto_corsa_gym si necessaire
 #    - installe toutes les dependances dans python\py3.9
 #    - installe PyTorch 1.12.1 + CUDA 11.6 via pip
-#    - telecharge les donnees de circuits et copie les .pickle
+#    - telecharge les donnees de circuits et copie les .pkl/.pickle
 #
 #  Assetto Corsa, Content Manager, CSP et le plugin AC restent
 #  des etapes manuelles.
@@ -208,7 +208,16 @@ Write-Host ""
 Write-Host "Installation de huggingface_hub..." -ForegroundColor Yellow
 & $Python -m pip install huggingface_hub
 
-if (-not (Test-Path $DownloadedTracks)) {
+# On considere le dataset present seulement si au moins un fichier .pkl ou .pickle existe.
+$TrackFiles = @()
+if (Test-Path $DownloadedTracks) {
+    $TrackFiles = @(
+        Get-ChildItem -Path $DownloadedTracks -File -ErrorAction SilentlyContinue |
+        Where-Object { $_.Extension -in ".pkl", ".pickle" }
+    )
+}
+
+if ($TrackFiles.Count -eq 0) {
     Write-Host "Telechargement des donnees de circuits..." -ForegroundColor Yellow
 
     $DownloadCode = @"
@@ -222,25 +231,29 @@ snapshot_download(
 "@
 
     & $Python -c $DownloadCode
+
+    $TrackFiles = @(
+        Get-ChildItem -Path $DownloadedTracks -File -ErrorAction SilentlyContinue |
+        Where-Object { $_.Extension -in ".pkl", ".pickle" }
+    )
 } else {
-    Write-Host "Donnees de circuits : deja telechargees." -ForegroundColor Green
+    Write-Host "Donnees de circuits : deja telechargees ($($TrackFiles.Count) fichier(s))." -ForegroundColor Green
 }
 
 # -------------------------------------------------------------
-# 10. Copier automatiquement les fichiers .pickle au bon endroit
+# 10. Copier automatiquement les fichiers .pkl/.pickle au bon endroit
 # -------------------------------------------------------------
 if (-not (Test-Path $DestinationTracks)) {
     New-Item -ItemType Directory -Path $DestinationTracks -Force | Out-Null
 }
 
-$PickleFiles = Get-ChildItem -Path $DownloadedTracks -Filter "*.pickle" -File -ErrorAction SilentlyContinue
-if (-not $PickleFiles) {
-    throw "Aucun fichier .pickle trouve dans $DownloadedTracks"
+if ($TrackFiles.Count -eq 0) {
+    throw "Aucun fichier .pkl ou .pickle trouve dans $DownloadedTracks"
 }
 
 Write-Host "Copie des fichiers de circuits vers :" -ForegroundColor Yellow
 Write-Host "  $DestinationTracks" -ForegroundColor DarkGray
-Copy-Item -Path (Join-Path $DownloadedTracks "*.pickle") -Destination $DestinationTracks -Force
+$TrackFiles | Copy-Item -Destination $DestinationTracks -Force
 
 # -------------------------------------------------------------
 # 11. Verification finale
@@ -253,7 +266,10 @@ Write-Host ""
 Write-Host "Verification des dependances pip..." -ForegroundColor Yellow
 & $Python -m pip check
 
-$NbTracks = (Get-ChildItem -Path $DestinationTracks -Filter "*.pickle" -File -ErrorAction SilentlyContinue | Measure-Object).Count
+$NbTracks = @(
+    Get-ChildItem -Path $DestinationTracks -File -ErrorAction SilentlyContinue |
+    Where-Object { $_.Extension -in ".pkl", ".pickle" }
+).Count
 
 Write-Host ""
 Write-Host "===============================================================" -ForegroundColor Green
@@ -265,7 +281,7 @@ Write-Host ""
 Write-Host "Assetto Corsa Gym :" -ForegroundColor Cyan
 Write-Host "  $AssettoRepo"
 Write-Host ""
-Write-Host "Circuits (.pickle) : $NbTracks fichier(s)" -ForegroundColor Cyan
+Write-Host "Circuits (.pkl/.pickle) : $NbTracks fichier(s)" -ForegroundColor Cyan
 Write-Host "  $DestinationTracks"
 Write-Host ""
 Write-Host "Etapes encore manuelles :" -ForegroundColor Magenta
