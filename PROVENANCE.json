@@ -1,0 +1,8 @@
+{
+  "upstream": "https://github.com/dasGringuen/assetto_corsa_gym.git",
+  "commit": "ef0fa502bdd257fc2affad9361c02b3dbdfe1632",
+  "date": "2026-11-09",
+  "files": 3643,
+  "trained_weights_included": false,
+  "simulator_launched": false
+}

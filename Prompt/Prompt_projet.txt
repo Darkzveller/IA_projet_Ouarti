@@ -1,0 +1,958 @@
+# PROJET IA OUARTI — ÉTAPE 1 : APPRENTISSAGE EN SIMULATION SUR ASSETTO CORSA
+
+## 1. Ton rôle
+
+Tu es une équipe d'ingénieurs spécialisés dans :
+
+- Le développement Python et les architectures logicielles orientées objet.
+- Le Deep Learning avec PyTorch.
+- La vision par ordinateur et la segmentation sémantique.
+- L'apprentissage par renforcement (Reinforcement Learning).
+- L'algorithme PPO (Proximal Policy Optimization).
+- La conduite autonome et le pilotage automobile en simulation.
+- Les environnements Gym / Gymnasium.
+- L'intégration d'Assetto Corsa avec des systèmes externes.
+- L'optimisation des réseaux neuronaux et des temps d'inférence.
+
+Ta mission est de **développer intégralement l'étape 1 de mon projet : l'apprentissage en simulation sur Assetto Corsa**.
+
+Je ne veux pas une simple démonstration ni une architecture théorique. Je veux que tu développes les vrais modules nécessaires à l'entraînement et à l'évaluation des modèles.
+
+**ATTENTION : je ne te demande pas de lancer le projet, de démarrer Assetto Corsa ni de commencer les entraînements.**
+
+Tu dois créer le code, les configurations, les modèles, les interfaces, les scripts d'entraînement et les outils nécessaires. Tout doit être préparé pour que nous puissions ensuite lancer les entraînements manuellement.
+
+Ne prétends pas avoir entraîné ou validé un modèle si ce n'est pas réellement le cas.
+
+---
+
+## 2. Contexte et projet existant
+
+Je fournis une arborescence du projet, des documents techniques et un cahier des charges.
+
+Le projet utilise déjà, au moins dans sa structure :
+
+- `assetto_corsa_gym/`
+- `assetto_corsa_gym/assetto_corsa_gym/AssettoCorsaEnv/`
+- `assetto_corsa_gym/assetto_corsa_gym/AssettoCorsaPlugin/plugins/sensors_par/`
+- `AssettoCorsaGymDataSet/`
+- Des fichiers de description des circuits.
+- Des systèmes de télémétrie et de capture d'écran.
+- Des scripts d'installation sous Windows et Linux.
+
+Les fichiers importants à examiner comprennent notamment :
+
+- `AssettoCorsaEnv/ac_env.py`
+- `AssettoCorsaEnv/ac_client.py`
+- `AssettoCorsaEnv/track.py`
+- `AssettoCorsaEnv/track_occupancy_grid.py`
+- `AssettoCorsaEnv/sensors_ray_casting.py`
+- `AssettoCorsaEnv/reference_lap.py`
+- `AssettoCorsaEnv/data_loader.py`
+- `AssettoCorsaEnv/vjoy.py`
+- `AssettoCorsaPlugin/plugins/sensors_par/sensors_par.py`
+- `AssettoCorsaPlugin/plugins/sensors_par/ego_server.py`
+- `AssettoCorsaPlugin/plugins/sensors_par/car_control.py`
+- `AssettoCorsaPlugin/plugins/sensors_par/screen_capture.py`
+- `assetto_corsa_gym/train.py`
+- Les fichiers `config.yml` et les autres configurations existantes.
+
+Ces chemins doivent être vérifiés dans le dépôt réel avant utilisation.
+
+### Consigne essentielle
+
+**Ne reconstruis pas le projet depuis zéro si certaines fonctionnalités existent déjà.**
+
+Avant de développer quoi que ce soit :
+
+1. Examine l'intégralité de la structure utile du projet.
+2. Lis les fichiers importants pour comprendre leur fonctionnement réel.
+3. Identifie ce qui peut être réutilisé.
+4. Vérifie comment les données sont transmises entre Assetto Corsa et Python.
+5. Identifie les actions réellement disponibles pour contrôler la voiture.
+6. Vérifie la disponibilité des images, de la télémétrie et des informations de circuit.
+7. Vérifie les versions des bibliothèques et leur compatibilité.
+8. Propose une architecture complémentaire qui s'intègre proprement au code actuel.
+
+Ne suppose jamais qu'une fonctionnalité est opérationnelle uniquement parce qu'un fichier portant son nom existe.
+
+Conserve autant que possible les scripts actuels, les interfaces publiques et la compatibilité avec l'installation existante.
+
+---
+
+# 3. Architecture générale des trois intelligences artificielles
+
+Je veux trois modèles distincts, qui fonctionnent ensemble.
+
+### IA 1 — Perception visuelle
+
+Un petit modèle de type U-Net, spécialisé dans la compréhension des images de course.
+
+Il devra identifier les éléments utiles pour comprendre la piste et les limites de conduite.
+
+### IA 2 — Pilotage de la voiture
+
+Un petit réseau neuronal qui apprend à contrôler physiquement le véhicule.
+
+Il devra savoir :
+
+- Tourner le volant.
+- Accélérer.
+- Freiner.
+- Suivre une trajectoire demandée.
+- Respecter une vitesse cible.
+- Rester stable.
+- Éviter de sortir de la piste.
+
+Il n'a pas besoin de trouver la trajectoire la plus rapide : ce sera le travail de l'IA principale.
+
+### IA 3 — Optimisation de trajectoire par PPO
+
+C'est le cerveau stratégique.
+
+Il doit apprendre à choisir :
+
+- La trajectoire à suivre.
+- Les points de passage.
+- Le placement dans un virage.
+- La vitesse adaptée.
+- Les moments où freiner.
+- Les moments où accélérer.
+- La façon d'enchaîner plusieurs virages.
+
+Le modèle de pilotage exécute ensuite ses consignes.
+
+Il s'agit d'une architecture hiérarchique : le PPO principal n'a pas à réapprendre directement le fonctionnement du volant et des pédales.
+
+---
+
+# 4. IA 1 — Reconnaissance visuelle avec une U-Net légère
+
+## 4.1 Objectif
+
+Créer ou réutiliser un modèle de segmentation sémantique léger capable d'analyser les images de la caméra avant d'Assetto Corsa.
+
+Privilégier une petite U-Net avec un encodeur efficace, par exemple Mini U-Net ou U-Net avec MobileNet, si cette solution est compatible avec les ressources disponibles.
+
+Le modèle doit rester suffisamment léger pour fonctionner en temps réel à côté des deux autres IA.
+
+Ne choisis pas une architecture lourde sans justification.
+
+## 4.2 Éléments à reconnaître
+
+Je souhaite qu'il reconnaisse autant que possible :
+
+**Surfaces :**
+- Asphalte et route praticable.
+- Limites gauche et droite de la route.
+- Accotements.
+- Gravier.
+- Herbe.
+- Terre ou sable.
+- Zones de dégagement.
+- Zones situées hors des limites de piste.
+
+**Marquages :**
+- Lignes blanches.
+- Lignes jaunes, si présentes.
+- Vibreurs et bordures rouges/blanches.
+- Vibreurs d'autres couleurs.
+- Damiers et marquages de départ/arrivée.
+- Autres marquages pertinents.
+
+**Obstacles :**
+- Véhicules.
+- Murs.
+- Barrières.
+- Glissières de sécurité.
+- Pneus de protection.
+- Objets pouvant représenter un obstacle.
+
+**Éléments complémentaires :**
+- Panneaux de freinage.
+- Entrées et sorties des stands.
+- Indicateurs de signalisation pertinents.
+- Autres éléments utiles à la compréhension d'un circuit automobile.
+
+Il faut organiser les classes en distinguant les catégories indispensables pour conduire des catégories secondaires.
+
+Si certaines classes sont rares ou ne peuvent pas être annotées correctement, documente cette limite plutôt que d'inventer des performances.
+
+La détection des voitures doit idéalement distinguer plusieurs véhicules. Une segmentation sémantique seule ne suffit pas toujours : prévois, si nécessaire, une extraction d'instances ou un petit détecteur complémentaire.
+
+## 4.3 Résultat du modèle
+
+À partir d'une image RGB, l'IA doit pouvoir produire :
+
+- Un masque de segmentation par classe.
+- Une probabilité par classe et par pixel.
+- Les zones praticables.
+- Les limites apparentes de la piste.
+- Une estimation de l'axe ou du couloir praticable.
+- Une estimation de la direction et de la courbure à venir.
+- Des points visuels utilisables par le pilote.
+- Une indication d'incertitude ou de fiabilité de la perception.
+
+La sortie ne doit pas se limiter à une image colorée : il faut aussi produire des données structurées directement exploitables par les deux autres modèles.
+
+Les distances et les courbures métriques doivent être calculées seulement si la géométrie et la calibration permettent de le faire correctement.
+
+## 4.4 Dataset
+
+Je veux un système permettant de constituer progressivement un dataset à partir d'Assetto Corsa.
+
+Il doit pouvoir enregistrer :
+
+- Les images brutes.
+- Les images prétraitées.
+- Les masques de segmentation, lorsqu'ils existent.
+- La télémétrie synchronisée.
+- Le circuit et le véhicule.
+- L'identifiant de session.
+- Les horodatages.
+- Les métadonnées de caméra.
+
+Prévois un moyen réaliste de créer les annotations.
+
+Si le simulateur ou ses outils peuvent générer des masques fiables, utilise-les. Sinon, prévois une solution d'annotation et un mécanisme de validation des pseudo-annotations.
+
+N'affirme pas qu'Assetto Corsa fournit nativement des masques de segmentation si ce n'est pas démontré.
+
+Prévois aussi des augmentations visuelles pour rendre le modèle robuste aux variations d'éclairage, de météo, de textures et de caméra.
+
+## 4.5 Entraînement
+
+Créer un pipeline d'entraînement PyTorch avec :
+
+- Chargement configurable du dataset.
+- Séparation entraînement/validation/test sans fuite entre sessions.
+- Batch size configurable.
+- Résolution configurable.
+- Optimiseur configurable.
+- Combinaison adaptée de Cross-Entropy, Dice Loss ou Focal Loss.
+- Gestion du déséquilibre des classes.
+- Sauvegarde du meilleur checkpoint.
+- Reprise d'entraînement.
+- Early stopping.
+- Export ONNX si compatible.
+- Journaux de métriques et images de validation.
+
+Mesurer notamment le mIoU, le Dice score, les performances par classe et la précision de localisation des limites de piste.
+
+Ne pas utiliser le même circuit uniquement avec des images voisines comme preuve de généralisation.
+
+---
+
+# 5. IA 2 — Modèle neuronal de pilotage
+
+## 5.1 Objectif
+
+Créer une deuxième IA légère dont la mission est de contrôler la voiture.
+
+Elle ne doit pas décider de la trajectoire optimale.
+
+Elle doit simplement être capable de suivre correctement une trajectoire ou un objectif local qui lui est imposé.
+
+Exemple :
+
+Si on lui demande d'atteindre un point situé devant la voiture, avec une vitesse cible donnée, elle doit choisir les commandes appropriées.
+
+Le modèle doit apprendre à conduire proprement à différentes vitesses, sur plusieurs types de courbes.
+
+## 5.2 Architecture
+
+Utiliser de préférence un réseau MLP relativement compact.
+
+Ses entrées peuvent comprendre :
+
+- La vitesse actuelle.
+- L'accélération.
+- L'orientation et la vitesse de rotation.
+- L'angle de volant.
+- L'écart latéral par rapport à l'objectif.
+- L'erreur de cap.
+- La courbure locale estimée.
+- La vitesse cible.
+- Un ou plusieurs points de passage locaux.
+- Des informations utiles sur la stabilité du véhicule.
+
+Ces informations doivent provenir de la télémétrie autorisée et des résultats de perception.
+
+Éviter de transmettre à ce modèle directement toutes les images brutes si l'IA de perception les a déjà transformées en informations pertinentes.
+
+## 5.3 Sorties
+
+Le modèle doit retourner trois commandes continues :
+
+| Commande | Intervalle |
+|---|---|
+| Direction | -1 à +1 |
+| Accélérateur | 0 à 1 |
+| Frein | 0 à 1 |
+
+Ajouter si nécessaire une gestion des vitesses, mais sans rendre cette fonctionnalité obligatoire si le simulateur ou la voiture gère déjà la boîte de vitesses.
+
+Prévoir une gestion cohérente de l'accélérateur et du frein, des limites de braquage et de la rapidité de variation des commandes.
+
+## 5.4 Comment le modèle doit apprendre
+
+Je ne veux pas utiliser les tours d'un pilote humain comme base d'apprentissage.
+
+Le modèle de pilotage doit apprendre par renforcement, dans des scénarios simples et progressifs.
+
+Créer un environnement d'entraînement dédié dans lequel on lui demande de suivre des objectifs de conduite générés automatiquement.
+
+Par exemple :
+
+**Niveau 1 — Ligne droite**
+
+Apprendre à avancer et à conserver une direction stable.
+
+**Niveau 2 — Suivi de piste**
+
+Apprendre à rester dans le couloir praticable.
+
+**Niveau 3 — Virages simples**
+
+Apprendre à tourner sans sortir de la piste.
+
+**Niveau 4 — Gestion de la vitesse**
+
+Apprendre à accélérer et à ralentir en fonction des consignes.
+
+**Niveau 5 — Virages difficiles**
+
+Enchaîner des virages plus serrés et gérer la stabilité.
+
+**Niveau 6 — Conduite complète**
+
+Réaliser un tour de circuit propre avec une trajectoire de référence locale générée automatiquement.
+
+Les objectifs peuvent provenir de la géométrie de piste pendant l'entraînement, mais aucune trajectoire de pilote humain ne doit servir d'exemple à imiter.
+
+## 5.5 Algorithme
+
+Privilégier un apprentissage par renforcement compatible avec l'architecture PPO globale.
+
+Un PPO à actions continues pour le contrôleur bas niveau est acceptable.
+
+Tu peux implémenter un contrôleur géométrique non appris pour servir de référence de comparaison et d'outil de débogage, mais **il ne doit pas être présenté comme le modèle neuronal demandé**.
+
+Évite de faire du comportement cloning sur des tours humains.
+
+## 5.6 Fonction de récompense
+
+La récompense doit encourager :
+
+- Le suivi correct des points demandés.
+- La réduction de l'écart latéral.
+- La réduction de l'erreur d'orientation.
+- Le respect de la vitesse cible.
+- Une conduite stable.
+- Une progression réelle sur la piste.
+- Des commandes progressives.
+
+Elle doit pénaliser :
+
+- Les sorties de piste.
+- Les collisions.
+- Les tête-à-queue.
+- Les commandes trop brusques.
+- Les oscillations du volant.
+- Les vitesses manifestement inadaptées.
+- Les arrêts inutiles.
+- Le fait de rouler à contresens.
+
+Prévoir une logique empêchant l'IA d'obtenir artificiellement une récompense élevée en restant immobile, en tournant en rond ou en exploitant des erreurs de calcul.
+
+## 5.7 Validation
+
+Ce modèle sera considéré comme fonctionnel seulement s'il démontre qu'il peut :
+
+- Suivre des objectifs locaux sans intervention humaine.
+- Adapter ses commandes aux virages.
+- Rester sur la piste.
+- Réaliser des tours complets dans plusieurs conditions.
+- Respecter des vitesses cibles.
+- Fonctionner avec les sorties du modèle de perception.
+
+Sauvegarder les métriques et les checkpoints afin de pouvoir mesurer les progrès.
+
+---
+
+# 6. IA 3 — PPO principal : recherche de la meilleure trajectoire
+
+## 6.1 Objectif
+
+C'est le modèle central du projet.
+
+Il doit apprendre, par essai et erreur, à choisir des trajectoires de plus en plus performantes.
+
+Il ne doit pas simplement suivre le centre de la route.
+
+Il doit pouvoir découvrir qu'il est parfois intéressant :
+
+- De se placer à l'extérieur avant un virage.
+- De rejoindre l'intérieur au point de corde.
+- D'élargir la trajectoire en sortie.
+- De freiner plus tôt ou plus tard.
+- De sacrifier un virage pour mieux négocier le suivant.
+- D'adapter sa vitesse à l'adhérence et à la géométrie.
+- De privilégier une trajectoire rapide sans perdre le contrôle.
+
+L'objectif final est de réduire le temps au tour tout en conservant une conduite maîtrisée.
+
+## 6.2 Observations du PPO
+
+Le PPO reçoit des informations fusionnées provenant :
+
+1. Du modèle de perception.
+2. De la télémétrie de la voiture.
+3. De l'historique récent des observations.
+4. De l'état de conduite utile à sa prise de décision.
+
+Par exemple :
+
+- Position relative à la piste.
+- Orientation de la voiture.
+- Vitesse.
+- Accélération.
+- Vitesse de rotation.
+- Courbure estimée à plusieurs distances.
+- Largeur de piste estimée.
+- Distance aux limites praticables.
+- Vitesse et commandes actuelles.
+- Incertitude de perception.
+- Informations visuelles sur les obstacles, si disponibles.
+
+Définir un format d'observation normalisé, stable et versionné.
+
+Le modèle doit pouvoir fonctionner sur un circuit jamais vu.
+
+Il ne doit pas dépendre d'un identifiant de circuit ni d'une trajectoire optimale préenregistrée.
+
+## 6.3 Actions du PPO
+
+Le PPO principal ne doit pas nécessairement envoyer directement les commandes du volant.
+
+Je veux qu'il génère des objectifs de conduite.
+
+Par exemple :
+
+- Une série de points de passage locaux.
+- Un décalage latéral à adopter.
+- Une courbure ou une direction cible.
+- Une vitesse cible.
+- Un objectif de freinage.
+- Un horizon de planification.
+
+Le modèle de pilotage transforme ces objectifs en commandes de conduite.
+
+Tu dois définir précisément le format de ces actions et les contraintes qui les rendent réalisables.
+
+Évite les changements de trajectoire irréalistes entre deux décisions.
+
+## 6.4 Algorithme PPO
+
+Utiliser PPO comme algorithme principal.
+
+Privilégier Stable-Baselines3 si sa compatibilité avec le code et les versions existantes est vérifiée.
+
+Sinon, proposer une adaptation techniquement justifiée.
+
+Prévoir :
+
+- Actor-Critic.
+- Actions continues.
+- Generalized Advantage Estimation.
+- Clipped objective.
+- Normalisation des observations et éventuellement des récompenses.
+- Entropie configurable.
+- Gradient clipping.
+- Checkpoints.
+- Reprise d'entraînement.
+- Évaluations périodiques.
+- Paramètres PPO externalisés dans des configurations.
+
+Ne pas remplacer PPO par SAC, DisCor ou un autre algorithme simplement parce qu'ils sont déjà présents dans le dépôt.
+
+## 6.5 Fonction de récompense
+
+La récompense principale doit être liée à la progression et à la performance sur la piste.
+
+Prévoir une composition paramétrable prenant en compte :
+
+- La progression longitudinale réelle.
+- Le temps nécessaire pour parcourir une distance.
+- La vitesse utile.
+- La stabilité.
+- Le respect des limites de piste.
+- La capacité à terminer un tour.
+- La réduction du temps au tour.
+- Le contrôle des risques.
+
+Pénaliser fortement :
+
+- Les collisions.
+- Les sorties de piste.
+- Les tête-à-queue.
+- Les trajectoires impossibles.
+- La conduite à contresens.
+- Les comportements exploitant artificiellement la récompense.
+
+Attention : ne récompense pas directement le rapprochement permanent avec le centre de la piste, car cela empêcherait le PPO de découvrir de meilleures trajectoires dans les virages.
+
+Les informations de circuit utilisées pour calculer la récompense doivent rester séparées des observations fournies à la politique, sauf si elles correspondent à des informations réellement accessibles par les capteurs autorisés.
+
+Les coefficients des récompenses doivent être configurables et les contributions individuelles doivent être journalisées.
+
+## 6.6 Apprentissage progressif
+
+Organiser l'entraînement du PPO en plusieurs phases :
+
+1. Terminer un tour avec le pilote déjà entraîné.
+2. Apprendre des déplacements latéraux raisonnables.
+3. Optimiser le passage dans les virages.
+4. Optimiser les vitesses et les freinages.
+5. Optimiser les enchaînements de virages.
+6. Améliorer les temps au tour.
+7. Tester sur différents circuits.
+8. Mesurer la généralisation sur des circuits inconnus.
+
+Ne mélange pas immédiatement tous les objectifs si cela rend l'entraînement instable.
+
+Au début, figer les paramètres de l'IA de pilotage pour stabiliser l'environnement d'apprentissage du PPO principal.
+
+Une optimisation conjointe pourra éventuellement être ajoutée ultérieurement, avec des tests garantissant qu'elle améliore réellement les performances.
+
+---
+
+# 7. Intégration avec Assetto Corsa
+
+## 7.1 Réutiliser les composants existants
+
+L'objectif n'est pas de remplacer `assetto_corsa_gym` ou `sensors_par`.
+
+Il faut les utiliser comme fondations.
+
+Étudie notamment :
+
+- Le fonctionnement de la capture d'écran.
+- Les données disponibles dans le simulateur.
+- Les interfaces de commande.
+- Les données de piste existantes.
+- Les méthodes de reset d'épisode.
+- La manière de calculer la progression.
+- La détection des sorties de piste.
+- Le protocole de communication entre Assetto Corsa et Python.
+
+Construis un adaptateur si les interfaces existantes ne correspondent pas directement au format Gymnasium attendu.
+
+Conserve la possibilité d'exécuter l'entraînement et l'inférence avec des composants distincts.
+
+## 7.2 Synchronisation
+
+Les données provenant de la caméra et de la télémétrie ne doivent pas être associées arbitrairement.
+
+Prévoir une synchronisation avec horodatage.
+
+Il faut pouvoir mesurer et gérer :
+
+- Les images trop anciennes.
+- Les données manquantes.
+- Les commandes retardées.
+- Les déconnexions.
+- Les écarts de fréquence entre modules.
+
+Prévoir un fonctionnement multi-fréquence :
+
+- Acquisition de télémétrie : objectif de 50 Hz.
+- Perception : fréquence adaptée aux performances réelles.
+- Pilotage : boucle rapide, idéalement de l'ordre de 20 à 50 Hz.
+- PPO stratégique : fréquence éventuellement plus faible et configurable.
+
+Ces valeurs sont des objectifs à mesurer, pas des performances à déclarer comme acquises.
+
+## 7.3 Sécurité et robustesse de la boucle de commande
+
+Prévoir :
+
+- Une commande neutre en absence de données fiables.
+- Une procédure d'arrêt immédiat.
+- Des limites sur les commandes.
+- Une gestion des timeouts.
+- Une détection des pertes de connexion.
+- Des resets propres après collision ou immobilisation.
+- Une reprise contrôlée après interruption.
+
+Les fonctions de contrôle automatique doivent être limitées à la simulation dans cette étape.
+
+---
+
+# 8. Généralisation sur plusieurs circuits
+
+C'est un critère fondamental du projet.
+
+Je ne veux pas une IA capable de conduire uniquement parce qu'elle a mémorisé un circuit.
+
+Elle doit apprendre les caractéristiques générales du pilotage.
+
+Le projet possède déjà des fichiers associés à plusieurs pistes, notamment Monza, Barcelona GP, Red Bull Ring et Silverstone GP.
+
+Vérifie quels circuits sont effectivement disponibles et compatibles avec l'environnement.
+
+Utiliser au minimum :
+
+- Trois circuits différents pour l'entraînement.
+- Un quatrième circuit jamais utilisé pour l'entraînement ni la sélection des hyperparamètres.
+
+Prévoir une validation distincte de l'entraînement et un véritable test final hors distribution.
+
+Le cahier des charges fixe comme objectif une baisse de performance inférieure à 10 % sur un circuit inconnu.
+
+Mesurer ce résultat, sans promettre qu'il sera automatiquement atteint.
+
+Pour améliorer la généralisation, prévoir selon les possibilités réelles du simulateur :
+
+- Des variations de points de départ.
+- Des vitesses initiales différentes.
+- Des voitures différentes si pertinent.
+- Des conditions d'adhérence variées.
+- Des changements d'éclairage.
+- Des modifications de paramètres de caméra.
+- Des conditions de piste différentes.
+
+Éviter toute fuite des données du circuit de test vers l'entraînement.
+
+---
+
+# 9. Interdiction d'utiliser des trajectoires humaines pour apprendre
+
+Le cahier des charges impose un apprentissage de conduite par renforcement, sans tour de pilote humain.
+
+Respecte impérativement cette contrainte pour les modèles de pilotage et d'optimisation de trajectoire.
+
+Certains fichiers existants portent des noms comme `reference_lap.py` ou `*-racing_line.csv`.
+
+Tu peux les examiner et les utiliser si cela est autorisé pour la visualisation, le diagnostic ou l'évaluation.
+
+En revanche, ne les utilise pas comme démonstrations d'un pilote expert pour entraîner les politiques de conduite.
+
+La segmentation U-Net constitue une tâche différente : elle peut nécessiter des annotations supervisées pour apprendre les catégories visuelles. Documente explicitement cette distinction, car l'entraînement supervisé de la perception et l'apprentissage par renforcement du pilotage ne sont pas techniquement la même méthode.
+
+Ne masque pas cette différence dans la documentation de conformité au cahier des charges.
+
+---
+
+# 10. Visualisation et outils de débogage
+
+Je veux pouvoir comprendre ce que font les différents modèles.
+
+Prévois un outil de visualisation pour l'étape 1, distinct du HUD final.
+
+Il doit pouvoir afficher :
+
+**Perception :**
+- Image originale.
+- Masque de segmentation.
+- Superposition du masque.
+- Bords de piste identifiés.
+- Points ou couloir praticable estimés.
+- Incertitude de perception.
+
+**Pilotage :**
+- Angle de volant demandé.
+- Accélérateur.
+- Frein.
+- Vitesse actuelle.
+- Vitesse cible.
+- Erreur latérale.
+- Erreur de cap.
+
+**PPO :**
+- Trajectoire demandée.
+- Objectifs locaux.
+- Vitesse cible.
+- Récompense instantanée.
+- Récompense cumulée.
+- Progression du tour.
+- État de l'épisode.
+
+Un affichage Tkinter peut être utilisé s'il s'intègre correctement au projet.
+
+Prévoir aussi un outil permettant de visualiser hors ligne les images et les données d'une session enregistrée.
+
+Les données enregistrées doivent pouvoir être rejouées pour le débogage sans relancer Assetto Corsa.
+
+---
+
+# 11. Entraînement, checkpoints et métriques
+
+Chaque modèle doit avoir son propre processus d'entraînement.
+
+Je veux pouvoir entraîner :
+
+- Uniquement la perception.
+- Uniquement le pilote.
+- Uniquement le PPO principal.
+- Les composants dans l'ordre prévu par le pipeline.
+
+Créer des points d'entrée clairement séparés.
+
+Chaque entraînement doit pouvoir :
+
+- Démarrer à partir d'une configuration.
+- Utiliser un checkpoint existant.
+- Sauvegarder automatiquement son état.
+- Reprendre après interruption.
+- Conserver les paramètres utilisés.
+- Enregistrer les métriques.
+- Exporter le modèle pour l'inférence.
+- Être évalué indépendamment.
+
+Prévoir des logs exploitables avec TensorBoard ou une solution locale équivalente.
+
+Les checkpoints doivent contenir les informations indispensables à la reprise, pas seulement les poids du réseau.
+
+Ne pas écraser le meilleur modèle avec le dernier modèle si ses performances sont inférieures.
+
+Prévoir une gestion Git ou Git LFS appropriée pour les artefacts volumineux, en évitant de versionner inutilement les datasets bruts.
+
+---
+
+# 12. Architecture logicielle
+
+Le code doit être propre, modulaire et orienté objet.
+
+Organiser les nouveaux composants autour de responsabilités claires :
+
+**Perception**
+- Modèle de segmentation.
+- Dataset.
+- Prétraitement.
+- Post-traitement.
+- Entraînement.
+- Évaluation.
+- Inférence.
+
+**Pilotage**
+- Modèle neuronal.
+- Environnement RL bas niveau.
+- Gestion des actions.
+- Récompenses.
+- Entraînement.
+- Évaluation.
+
+**PPO principal**
+- Politique stratégique.
+- Environnement hiérarchique.
+- Génération des objectifs locaux.
+- Récompenses.
+- Entraînement.
+- Évaluation.
+
+**Intégration**
+- Communication simulateur.
+- Synchronisation des capteurs.
+- Normalisation de la télémétrie.
+- Adaptateurs.
+- Gestion des sessions.
+- Journalisation et visualisation.
+
+Utiliser des classes et des interfaces explicites.
+
+Éviter les fichiers Python géants qui regroupent toutes les responsabilités.
+
+Ne duplique pas les fonctions déjà disponibles dans `assetto_corsa_gym`.
+
+Le projet doit rester facile à reprendre et à comprendre par les autres membres du groupe.
+
+---
+
+# 13. Contraintes de performance
+
+Le système doit rester raisonnable en termes de ressources.
+
+Les trois modèles devront pouvoir fonctionner ensemble sans nécessiter plusieurs grosses cartes graphiques.
+
+Privilégier :
+
+- Des réseaux légers.
+- Des dimensions d'observation maîtrisées.
+- Le prétraitement efficace des images.
+- L'absence de copies inutiles entre CPU et GPU.
+- L'utilisation de batches pour les entraînements.
+- L'inférence sans gradient.
+- L'accélération GPU quand elle est disponible.
+- Une solution CPU de secours, avec ses limites documentées.
+- Des modèles exportables.
+
+Prévoir un outil de benchmark pour mesurer indépendamment :
+
+1. La latence de la perception.
+2. La latence du pilote.
+3. La latence du PPO.
+4. La latence complète du pipeline.
+5. L'utilisation de la mémoire.
+6. La consommation GPU et CPU lorsque mesurable.
+
+L'objectif final du cahier des charges est une latence d'affichage inférieure à 100 ms.
+
+À cette étape, mesurer déjà les latences qui conditionneront cet objectif.
+
+Ne présente jamais un objectif théorique comme un résultat de benchmark.
+
+---
+
+# 14. Tests et validation
+
+Je veux un véritable système de tests.
+
+Les tests doivent couvrir :
+
+- Le chargement des modèles.
+- Les dimensions des tenseurs.
+- Le format des observations.
+- Le format des actions.
+- Les bornes des commandes.
+- La normalisation de la télémétrie.
+- Les masques de segmentation.
+- Les fonctions de récompense.
+- Les conditions de fin d'épisode.
+- La sauvegarde et la reprise des checkpoints.
+- La synchronisation des données.
+- Le fonctionnement des interfaces avec des données simulées.
+
+Il faut pouvoir tester les composants indépendamment du jeu grâce à des mocks et à des données enregistrées.
+
+Prévoir un smoke test du pipeline complet avec des modèles non entraînés, en précisant qu'il vérifie l'intégration et non la capacité de conduite.
+
+Les tests nécessitant réellement Assetto Corsa doivent être identifiés séparément.
+
+Ne lance pas ces tests ni les entraînements automatiquement pendant cette intervention.
+
+---
+
+# 15. Ce qui n'entre pas dans cette étape
+
+Le projet global prévoit également un affichage tête haute pour guider un vrai pilote.
+
+Ce n'est pas le travail principal demandé ici.
+
+Pour cette première étape, concentre-toi sur :
+
+- La perception.
+- L'apprentissage du pilotage.
+- L'apprentissage PPO.
+- La communication avec le simulateur.
+- La production des recommandations de trajectoire.
+- Les entraînements.
+- Les évaluations.
+
+Prépare néanmoins une sortie structurée permettant de transmettre plus tard au HUD :
+
+- Les points de trajectoire.
+- La vitesse cible.
+- Les zones de freinage.
+- Un niveau de confiance, s'il est correctement estimé.
+
+Le niveau de confiance doit être défini et calibré : ne transforme pas arbitrairement une sortie du PPO en pourcentage de fiabilité.
+
+Ne développe pas maintenant le système embarqué sur voiture réelle.
+
+Ne développe pas non plus la gestion avancée des adversaires, des dépassements et de la stratégie de course.
+
+La reconnaissance visuelle des autres voitures peut être préparée, mais le pilotage en piste libre reste la priorité du cahier des charges.
+
+---
+
+# 16. Ordre de développement obligatoire
+
+Je veux une progression cohérente et vérifiable.
+
+## Phase A — Audit et intégration
+
+Étudier le dépôt réel, documenter les interfaces et les composants réutilisables, puis définir les contrats de données communs.
+
+## Phase B — Perception
+
+Développer le pipeline U-Net, les données, les annotations, l'entraînement, l'inférence et les outils de visualisation.
+
+## Phase C — Pilotage
+
+Développer le réseau neuronal de pilotage, son environnement RL, ses récompenses, son entraînement et son évaluation.
+
+## Phase D — PPO principal
+
+Développer l'agent stratégique, sa politique d'actions de haut niveau, sa fonction de récompense et son environnement hiérarchique.
+
+## Phase E — Intégration des trois modèles
+
+Mettre en place la chaîne complète :
+
+Caméra + télémétrie → perception → observation fusionnée → PPO stratégique → objectifs de conduite → contrôleur neuronal → commandes Assetto Corsa.
+
+## Phase F — Évaluation
+
+Développer les benchmarks et les comparaisons nécessaires pour mesurer la conduite, l'amélioration des chronos et la généralisation.
+
+## Phase G — Documentation
+
+Rédiger les instructions d'installation, les configurations et les commandes pour lancer manuellement chacun des entraînements.
+
+---
+
+# 17. Livrables attendus
+
+À la fin du développement, je veux trouver dans mon projet :
+
+1. Le code de tous les nouveaux modèles.
+2. Les classes de chargement et de traitement des données.
+3. Les environnements RL.
+4. Les scripts d'entraînement indépendants.
+5. Les scripts d'évaluation.
+6. Les configurations et hyperparamètres.
+7. Le système de checkpoints.
+8. Les outils de visualisation.
+9. Les tests automatisés.
+10. Un README détaillant les étapes nécessaires à l'entraînement.
+11. Une documentation des observations, actions et récompenses.
+12. Une documentation expliquant la communication entre les trois modèles et Assetto Corsa.
+13. Une liste des fonctionnalités réellement implémentées et de celles qui restent dépendantes du simulateur.
+
+Les modèles non entraînés doivent être explicitement indiqués comme tels.
+
+Un fichier de poids fictif ou des résultats d'entraînement inventés sont interdits.
+
+---
+
+# 18. Consignes finales
+
+Je veux que tu travailles directement sur mon projet existant.
+
+Prends le temps de comprendre sa structure avant de faire des modifications.
+
+Ne remplace pas les composants existants sans nécessité.
+
+Ne fournis pas seulement du pseudocode, des exemples isolés ou une liste de recommandations.
+
+Développe une véritable base technique complète pour l'étape 1.
+
+Pour chaque étape :
+
+- Crée le code réel.
+- Respecte les interfaces communes.
+- Complète les configurations.
+- Ajoute les tests correspondants.
+- Documente le fonctionnement.
+- Vérifie statiquement la cohérence et les dépendances lorsque c'est possible sans exécuter le projet.
+
+Ne saute pas une étape parce qu'elle est difficile.
+
+Si une fonctionnalité dépend d'une API du projet qui n'est pas disponible ou d'une caractéristique d'Assetto Corsa non vérifiée, signale précisément le problème et prépare l'interface nécessaire sans inventer son fonctionnement.
+
+Ne supprime pas les fichiers actuels pour simplifier le travail.
+
+**Enfin, ne lance ni Assetto Corsa, ni les entraînements, ni les tests qui démarrent la simulation. Je veux d'abord disposer de toute l'infrastructure de l'étape 1, puis décider moi-même du moment où nous commencerons les entraînements.**
+
+Le résultat recherché est un système dans lequel trois IA spécialisées travaillent ensemble : l'une comprend la piste, la deuxième sait conduire, et la troisième apprend à choisir la meilleure trajectoire possible pour améliorer progressivement les temps au tour, y compris sur des circuits qu'elle n'a jamais rencontrés.

@@ -344,3 +344,232 @@ PyTorch 1.12.1 / CUDA 11.6 datent de 2022 et peuvent refuser de
 fonctionner sur une carte graphique récente. À tester en premier.
 
 Dépôt : https://github.com/dasGringuen/assetto_corsa_gym
+
+---
+
+## Avancement du 9 novembre 2026 — Préparation de l'étape 1
+
+Cette section complète le guide d'installation ci-dessus avec le travail effectué aujourd'hui. Elle distingue le code préparé, les vérifications hors jeu et les essais qui restent à effectuer sur le PC gaming.
+
+**Aucun modèle n'est encore entraîné. Aucun entraînement ni Assetto Corsa n'a été lancé pendant le développement de cette version.** La capacité à conduire et les performances sur circuit restent à mesurer.
+
+### 1. Récupération et examen du projet
+
+Les fichiers de gestion, le cahier des charges, l'arborescence et le script `install-gamer-windows-venv-youssef.ps1` ont été examinés. Les premières archives contenaient les documents de gestion, mais pas les sources Python du simulateur.
+
+Le script d'installation a permis de retrouver le dépôt utilisé : [dasGringuen/assetto_corsa_gym](https://github.com/dasGringuen/assetto_corsa_gym). Il a été récupéré directement, sans avoir à transférer tout le dossier d'installation local.
+
+La base inspectée correspond à la révision `ef0fa502bdd257fc2affad9361c02b3dbdfe1632`. Les éventuelles modifications restées uniquement sur un PC personnel ne sont pas comprises dans cette récupération.
+
+L'examen a porté notamment sur le client, l'environnement Gym, les fichiers de piste, les trajectoires de référence, les commandes vJoy et le plugin `sensors_par` : télémétrie, serveur ego, capture d'écran et mémoire partagée.
+
+Deux points ont orienté les ajouts :
+
+- L'entraînement historique utilise SAC/DisCor et Gym 0.21. L'étape 1 demandée utilise deux politiques PPO distinctes.
+- Certaines observations historiques reposent sur des trajectoires de référence. La nouvelle chaîne sépare ces informations des observations de la stratégie, pour respecter l'apprentissage sans imitation de tours humains.
+
+### 2. Infrastructure ajoutée pour les trois IA
+
+Le travail a été livré dans `OUARTI_Etape1_source.zip`. Les nouveaux fichiers se trouvent dans **`assetto_corsa_gym/ouarti_stage1/`**, depuis la racine du projet principal. Les programmes historiques restent disponibles.
+
+| Composant | Travail préparé |
+|---|---|
+| Perception — petite U-Net | Segmentation des images, classes visuelles, dataset, augmentations, entraînement, métriques et inférence |
+| Pilote neuronal — PPO | Commandes volant/accélérateur/frein, objectifs locaux et exercices progressifs |
+| Stratégie — PPO | Choix de quatre points locaux et d'une vitesse cible, exécutés par le pilote déjà entraîné |
+| Liaison avec le jeu | Adaptateur des protocoles existants, contrôle des délais, synchronisation et arrêt des commandes |
+| Données et outils | Collecte de sessions, préparation des annotations, replay, visualisation, calibration et benchmark |
+| Sauvegardes et exports | Checkpoints, reprise, journaux et export ONNX des trois modèles |
+| Documentation et tests | Configurations séparées, guides techniques et tests hors simulateur |
+
+La perception apprend avec des masques annotés. Les deux politiques de conduite apprennent par renforcement. Le pilote peut commencer avec des objectifs générés depuis les bords de piste, avant que la perception soit prête. Aucun tour de pilote humain n'est utilisé comme exemple à imiter par les politiques.
+
+Les classes prévues couvrent notamment l'asphalte, les lignes, les vibreurs, l'herbe, le gravier, les dégagements, les voitures, les barrières et les marquages de course. Leur reconnaissance réelle dépendra des annotations et des résultats d'entraînement.
+
+### 3. Adaptation du plugin
+
+Quatre fichiers du plugin ont été modifiés pour cette version :
+
+| Fichier | Modification |
+|---|---|
+| `structures.py` | Ajout d'un horodatage de télémétrie et du dommage total, utilisé comme indicateur de collision |
+| `dual_buffer.py` | Ajout de métadonnées temporelles et correction de la lecture des pixels noirs en fin d'image |
+| `screen_capture_worker.py` | Horodatage de la capture avant son écriture en mémoire partagée |
+| `ego_server.py` | Ajout d'un watchdog activé par les nouveaux clients pour freiner en cas d'absence de commandes, avec vJoy côté serveur |
+
+Le code refuse les données trop anciennes ou incohérentes et vérifie la correspondance du circuit et de la voiture avec la configuration. Ces mécanismes ont été vérifiés hors jeu avec des données synthétiques ; leurs effets dans le simulateur doivent encore être contrôlés.
+
+Le reset disponible dépend de CSP. Aucun changement automatique de circuit, sélection arbitraire de point de départ ou réglage automatique de météo n'est présenté comme opérationnel.
+
+### 4. Environnement Python séparé
+
+**Précision par rapport au début de ce README :** l'environnement commun Conda `p309` concerne l'installation historique. Le script sans Conda utilise, lui, le venv `python/py3.9`. La nouvelle étape 1 possède son propre environnement et ne doit pas être installée en mélangeant les dépendances de ces anciennes variantes.
+
+| Élément | Nouvelle étape 1 |
+|---|---|
+| Version Python prévue par le script Windows | Python 3.11 |
+| Dossier de l'environnement | `assetto_corsa_gym/ouarti_stage1/.venv-stage1/` |
+| Bibliothèques principales | PyTorch 2.5.1, Gymnasium 1.0.0, Stable-Baselines3 2.4.1 |
+| Script d'installation | `install-windows-stage1.ps1` |
+| Calcul installé par défaut | Processeur, pour préparer et vérifier les interfaces |
+
+L'installation GPU adaptée à la carte devra être vérifiée avant les longs entraînements. Conserver l'ancien environnement Python.
+
+Depuis la racine du projet, ouvrir PowerShell puis entrer :
+
+```powershell
+cd .\assetto_corsa_gym\ouarti_stage1
+py -3.11 --version
+powershell -ExecutionPolicy Bypass -File .\install-windows-stage1.ps1
+```
+
+Si Python 3.11 manque, l'installer avant de relancer. Ce script prépare les bibliothèques ; il ne démarre ni le jeu ni les entraînements. Son installation complète sur le PC gaming n'a pas été confirmée dans les échanges d'aujourd'hui.
+
+Vérifications hors jeu à lancer après installation, depuis le même dossier :
+
+```powershell
+.\.venv-stage1\Scripts\python.exe -m ouarti.cli --help
+.\.venv-stage1\Scripts\python.exe -m ouarti.cli audit --config configs/pilot.yaml
+.\.venv-stage1\Scripts\python.exe -m pytest
+```
+
+L'audit contrôle les versions et la présence des fichiers de circuits ; il ne prouve pas la connexion au jeu.
+
+### 5. Installation du plugin : point d'arrêt actuel
+
+Le terminal a été ouvert dans le dossier `assetto_corsa_gym/ouarti_stage1`, puis cette commande a été lancée :
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install-plugin-stage1.ps1
+```
+
+PowerShell a demandé le paramètre suivant :
+
+```text
+AssettoPath:
+```
+
+Ce paramètre est **le chemin du jeu installé par Steam**. Il désigne par exemple :
+
+```text
+C:\Program Files (x86)\Steam\steamapps\common\assettocorsa
+```
+
+Pour retrouver le chemin exact : **Steam → Bibliothèque → clic droit sur Assetto Corsa → Gérer → Parcourir les fichiers locaux**, puis copier le chemin dans la barre d'adresse de l'explorateur.
+
+L'installation a été reportée à ce moment-là. **Le patch du plugin n'est donc pas confirmé comme installé.**
+
+Pour reprendre plus tard, fermer le jeu, revenir dans `ouarti_stage1`, puis relancer la commande et fournir le bon chemin. Il est aussi possible de le passer directement, en adaptant cet exemple :
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install-plugin-stage1.ps1 -AssettoPath "C:\Program Files (x86)\Steam\steamapps\common\assettocorsa"
+```
+
+Le script met à jour quatre fichiers du plugin et conserve des sauvegardes des fichiers existants. **Il demande que le plugin original soit déjà installé.** Si ce n'est pas le cas, suivre d'abord [INSTALL.md](assetto_corsa_gym/INSTALL.md).
+
+Le projet Python reste dans le dossier de travail. Seuls les fichiers du plugin concernés sont copiés dans le dossier du jeu.
+
+### 6. Configuration à vérifier après la copie du plugin
+
+Dans le `config.py` du plugin réellement installé dans Assetto Corsa, les valeurs prévues pour la nouvelle chaîne sont :
+
+```python
+self.sampling_freq = 100
+self.ego_sampling_freq = 25
+self.vjoy_executed_by_server = True
+self.screen_capture_enable = True
+self.screen_capture_freq = 25
+self.final_image_width = 320
+self.final_image_height = 240
+self.color_mode = 'bgr'
+```
+
+Ces valeurs sont des réglages demandés au plugin, pas des fréquences déjà mesurées. Le mode vJoy côté serveur exige 100 Hz dans le code inspecté.
+
+Il faudra aussi vérifier :
+
+- L'installation et la configuration de vJoy.
+- Le chemin de l'interpréteur utilisé par le worker externe de capture, notamment `config_python_executable`.
+- La boîte automatique, car les commandes actuelles ne gèrent pas le passage manuel des rapports.
+- Une caméra avant fixe, avec un cadrage conservé pour la calibration et les essais.
+- La correspondance circuit/voiture entre le jeu et le YAML ; les configurations livrées commencent avec Monza et `dallara_f317`.
+
+La capture actuelle passe par une mémoire partagée locale Windows. Pour la chaîne visuelle en direct, le client Python doit donc tourner sur le même PC Windows que le jeu. Les outils hors ligne restent séparés de cette contrainte.
+
+### 7. Vérifications déjà effectuées hors jeu
+
+**28 tests ont passé dans l'environnement de développement Linux/Python 3.12, sur processeur.** Le script d'installation Windows prévoit Python 3.11 ; son fonctionnement sur le PC gaming reste à vérifier.
+
+Les vérifications couvrent notamment :
+
+- Les formats de télémétrie, observations et actions.
+- Les dimensions des réseaux et des tenseurs.
+- Les limites de commandes et la conversion des pédales vers le protocole du plugin.
+- Les données périmées, les séquences et la synchronisation.
+- Les récompenses, les sorties de piste, l'immobilisation et les sauts de position.
+- La sauvegarde et le chargement des politiques.
+- La chaîne stratégique → pilote → commandes avec un simulateur remplacé par des données synthétiques.
+- Les exports ONNX, comparés aux sorties PyTorch sur des modèles non entraînés.
+
+Les modules ajoutés et les quatre fichiers du plugin modifiés ont également passé la compilation Python. Les fichiers de bords des cinq circuits configurés sont présents et lisibles dans le dépôt récupéré.
+
+**Ces contrôles ne valident ni la connexion réelle au jeu, ni la conduite, ni les chronos.** Aucun poids entraîné et aucun résultat de performance fictif ne sont livrés.
+
+### 8. Prochains tests, dans l'ordre
+
+| Ordre | Test à réaliser | Ce qu'on doit vérifier |
+|---|---|---|
+| 1 | Environnement Windows | Python 3.11, installation terminée sans erreur, aide CLI, audit et tests hors jeu |
+| 2 | Plugin | Installation originale présente, patch copié et configuration effectivement chargée |
+| 3 | Télémétrie | Vitesse, position, orientation et autres mesures reçues avec des horodatages cohérents |
+| 4 | Caméra | Images BGR reçues à la résolution prévue, sans images trop anciennes ni mauvais cadrage |
+| 5 | Commandes | Bon sens du volant, accélérateur et frein sur les bons axes, boîte automatique active |
+| 6 | Arrêts | Freinage lors d'un arrêt volontaire ou d'une perte de commandes, sans commandes résiduelles |
+| 7 | Reset | Retour de la voiture dans un état utilisable et départ adapté au premier exercice |
+| 8 | Acquisition | Fréquences et délais réels, en particulier l'écart entre image et télémétrie |
+| 9 | Session courte | Enregistrement puis visualisation hors ligne des images et mesures |
+
+Les essais qui commandent la voiture sont à lancer volontairement dans une session de simulation prête. Les notebooks historiques `test_client.ipynb` et `test_gym.ipynb` concernent l'ancien client/environnement et doivent utiliser leurs dépendances compatibles. Ils ne remplacent pas les vérifications de la nouvelle chaîne.
+
+### 9. Après la validation de la liaison au jeu
+
+Les étapes suivantes seront :
+
+1. **Constituer les données de perception.** Enregistrer plusieurs sessions, annoter les masques et vérifier les classes. Le plugin ne fournit pas de masques sémantiques natifs confirmés.
+2. **Entraîner la U-Net.** Séparer entraînement, validation et test, puis mesurer les erreurs par classe et sur les limites de piste.
+3. **Entraîner le pilote PPO.** Passer progressivement par la ligne droite, le suivi de piste, les virages, la gestion de vitesse et les tours complets. Cet apprentissage peut commencer avec la géométrie avant la fin de la perception.
+4. **Calibrer la caméra et tester perception + pilote.** Relier les pixels aux mètres avec des mesures indépendantes. La calibration plane actuelle ne suffit pas à garantir des distances correctes dans les fortes pentes ou dévers.
+5. **Entraîner le PPO stratégique.** Garder le pilote et la perception fixes, puis apprendre le placement et la vitesse.
+6. **Comparer les résultats.** Mesurer tours terminés, erreurs, collisions détectées et chronos dans des conditions comparables.
+
+Les circuits sont répartis ainsi :
+
+| Usage | Circuits |
+|---|---|
+| Entraînement | Monza, Barcelona GP, Red Bull Ring GP |
+| Validation et choix des réglages | Imola |
+| Test final, gardé à part pendant les réglages | Silverstone GP |
+
+La présence des CSV ne confirme pas que les circuits et la voiture sont installés dans le jeu ou que leur géométrie correspond exactement aux fichiers. Cela reste à vérifier.
+
+Les objectifs du cahier des charges, dont moins de 10 % de dégradation sur un circuit inconnu et moins de 100 ms de latence d'affichage, ne sont pas encore mesurés. Le benchmark d'inférence seul n'inclut pas toute la capture et l'affichage du futur HUD.
+
+### 10. Où retrouver les instructions et les sauvegardes
+
+| Fichier ou dossier | Contenu |
+|---|---|
+| [README de l'étape 1](assetto_corsa_gym/ouarti_stage1/README.md) | Commandes de collecte, entraînement, reprise, évaluation et visualisation |
+| [INTEGRATION.md](assetto_corsa_gym/ouarti_stage1/docs/INTEGRATION.md) | Installation/configuration du plugin, échanges et synchronisation |
+| [DONNEES.md](assetto_corsa_gym/ouarti_stage1/docs/DONNEES.md) | Annotations, classes et calibration |
+| [CONTRATS.md](assetto_corsa_gym/ouarti_stage1/docs/CONTRATS.md) | Observations, actions et récompenses |
+| [ETAT.md](assetto_corsa_gym/ouarti_stage1/docs/ETAT.md) | Fonctions préparées et limites restantes |
+| [VERIFICATION.txt](assetto_corsa_gym/ouarti_stage1/docs/VERIFICATION.txt) | Résultat des contrôles hors simulateur |
+| `assetto_corsa_gym/ouarti_stage1/configs/` | Configurations séparées des modèles |
+| `assetto_corsa_gym/ouarti_stage1/data/` | Données et calibration à constituer |
+| `assetto_corsa_gym/ouarti_stage1/outputs/` | Futurs modèles et journaux d'entraînement |
+
+Pour reprendre un PPO, conserver ensemble le fichier `.zip`, son `.json` et son `.rng.pt`. Pour la perception, conserver les checkpoints `.pt`. Les sauvegardes ne restaurent pas l'état physique exact de la voiture. `total_timesteps` est un total cumulatif : il faut l'augmenter lorsqu'on reprend pour ajouter de l'apprentissage.
+
+Avant de partager les ajouts avec Git, vérifier que les nouveaux fichiers sont bien suivis et que les venv/datasets ne sont pas ajoutés inutilement. Le dépôt `assetto_corsa_gym` étant récupéré avec Git, contrôler aussi sa gestion comme éventuel dépôt imbriqué : un envoi du dépôt principal ne garantit pas à lui seul la publication de ses changements internes.
+
+**À la prochaine reprise : terminer d'abord le patch du plugin avec le bon `AssettoPath`, puis vérifier sa configuration et la liaison au jeu. Les entraînements seront lancés après ces contrôles.**
