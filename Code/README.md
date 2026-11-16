@@ -46,7 +46,127 @@ IA_projet_Ouarti_ds_github/
 └── ...
 ```
 
+## Diagnostic du checkpoint — 16 novembre 2026
+
+Le notebook autonome `01_Tests/07_Diagnostic_Checkpoint_CSP.ipynb` interroge
+uniquement `PING`, `CAPABILITIES` et `STATUS`. Il ne commande pas la voiture
+et ne nécessite ni PPO, ni vJoy, ni connexion de télémétrie.
+
+Sur le PC examiné, le jeu répond effectivement `PONG`, mais annonce
+`full_snapshot=false; position_fallback=false; offline=true`, puis
+`NOT_SAVED`. La connexion fonctionne ; aucun mécanisme de restauration n'est
+actuellement utilisable. L'installation déclare **CSP 0.1.79 (build 2144)** et
+son SDK local ne déclare pas `ac.saveCarStateAsync` ou `ac.loadCarState`.
+Le SDK expose `physics.setCarPosition`, mais sa présence ne suffit pas :
+`physics.allowed()` doit aussi autoriser son utilisation dans la session.
+
+Le notebook `03_Entrainement/02_Entrainement_PPO_Assetto.ipynb` contrôle
+désormais ces capacités avant la sauvegarde et avant l'entraînement. Il
+explique aussi comment créer le checkpoint si `STATUS` indique `NOT_SAVED`.
+L'activation de l'entraînement est remise à `False` et le chemin du diagnostic
+des journaux est corrigé.
+
+Pour débloquer les épisodes au départ fixe, vérifier la version dans
+**Content Manager > Settings > Custom Shaders Patch > About & Updates**,
+puis choisir une version compatible avec le plugin `sensors_par` et les
+fonctions nécessaires. Après tout changement, redémarrer le jeu et relancer
+le diagnostic. Une mise à jour ne garantit pas à elle seule que les fonctions
+physiques soient autorisées. Ne passer à la sauvegarde du checkpoint qu'une
+fois au moins une capacité disponible ; après `SAVE`, le notebook PPO vérifie
+encore la position, l'orientation et la vitesse lors de chaque restauration.
+
+Références : [SDK CSP](https://github.com/ac-custom-shaders-patch/acc-lua-sdk)
+et [utilisation des snapshots dans l'application CSP Debug](https://github.com/ac-custom-shaders-patch/acc-lua-internal/blob/main/included-apps/CspDebug/CspDebug.lua).
+Le SDK installé est consultable sous
+`<Assetto Corsa>/extension/internal/lua-sdk/ac_apps/lib.lua`.
+
+Validation effectuée : syntaxe des cellules des notebooks actifs, scénarios
+de capacités et protocole de fichiers testés hors jeu, puis interrogation du
+jeu par `PING`, `CAPABILITIES` et `STATUS`. Aucun `SAVE`, `LOAD` ou entraînement
+n'a été lancé pendant cette vérification. Le retour automatique au départ
+reste à valider sur une installation disposant des capacités nécessaires.
+
 ## Démarrage
+
+### Continuer le PPO après le premier essai
+
+La cellule **REGLAGES** des notebooks 02 et 03 expose désormais
+`PENALITE_SORTIE_PISTE = 100.0` : ce montant positif est soustrait à la
+récompense lors d'une sortie détectée, contre 15 auparavant à l'étape 1
+(25 aux étapes suivantes). L'épisode se termine toujours dès la détection.
+Un objectif de distance ou un tour franchi en sortant de piste ou en collision
+ne reçoit plus son bonus de réussite. Le montant appliqué est enregistré dans
+les journaux et la configuration dans les métadonnées du modèle. La détection
+reste celle du prototype : plus de deux pneus hors piste ou centre de la
+voiture au-delà des limites géométriques. Tester l'effet sur une session courte
+avant une nuit entière ; le nouveau réglage s'applique à la prochaine création
+de l'environnement, pas à un entraînement déjà en cours.
+
+Les notebooks `03_Entrainement/02_Entrainement_PPO_Assetto.ipynb` et
+`03_Entrainement/03_Reprendre_PPO.ipynb` utilisent maintenant le même
+environnement avec restauration du checkpoint CSP. Le notebook 03 exige un
+modèle existant ; le notebook 02 peut aussi créer un nouveau modèle.
+
+- `REPRENDRE_MODELE_EXISTANT=True` charge le ZIP et conserve les poids,
+  l'optimiseur et le compteur. La session, le schéma de contrôle et l'étape
+  doivent correspondre aux métadonnées. Choisir un autre `MODELE_NOM` pour
+  recommencer : le modèle existant n'est pas écrasé par une nouvelle politique.
+- `TOTAL_TIMESTEPS=4096` représente des actions **supplémentaires**. Pour le
+  modèle actuel à 256 actions, la fin normale atteint 4 352 actions cumulées.
+- Une copie du modèle et de ses métadonnées est conservée dans
+  `models/checkpoints/` avant chaque reprise. Des sauvegardes périodiques y
+  sont aussi écrites entre les lots, après les mises à jour. Une interruption
+  clavier produit une sauvegarde séparée avec le suffixe `_interrupted_...`.
+- Le dernier pas de chaque lot PPO termine l'épisode par une troncature
+  explicite, sans pénalité d'échec supplémentaire. Le véhicule reste freiné
+  pendant le calcul. Après la mise à jour, le checkpoint est restauré et
+  l'observation de départ est renouvelée. Aucun épisode ne traverse le calcul
+  des mises à jour ; un reset vide supplémentaire de VecEnv peut créer des
+  sauts de numéros d'épisodes.
+- Les journaux de chaque session ont leur propre sous-dossier dans
+  `reports/ppo_checkpoint_v3_stage1/`. Le tableau final sélectionne le journal
+  le plus récent et indique les `coupure PPO` pour distinguer ces troncatures.
+
+**Séquencement automatique :** recharger le notebook depuis le disque. La
+première cellule de code, **REGLAGES**, est maintenant le seul endroit où
+modifier les interrupteurs et les paramètres. Aucune autre cellule ne change
+leur valeur. Cliquer ensuite sur **Tout exécuter** : les définitions sont
+chargées, puis une seule séquence vérifie la session, sauvegarde si demandé
+et lance l'entraînement si activé.
+
+| Sauvegarde checkpoint | Entraînement | Résultat |
+|---|---|---|
+| `False` | `False` | Charge les définitions sans connexion au jeu |
+| `True` | `False` | Crée le checkpoint manquant, voiture immobile, sans conduite |
+| `True` | `True` | Crée le checkpoint manquant puis entraîne ; conserve un checkpoint déjà valide |
+| `False` | `True` | Entraîne avec le checkpoint existant ; explique le réglage à changer s'il manque |
+
+Après un redémarrage du jeu, immobiliser la voiture au départ choisi et mettre
+les deux interrupteurs à `True` pour sauvegarder puis entraîner. Pour les
+sessions suivantes, seule l'activation de l'entraînement est nécessaire.
+Une fois les définitions chargées, on peut aussi réexécuter **REGLAGES**, puis
+uniquement **EXECUTER LA SEQUENCE**. Les deux restent des cellules séparées.
+Modifier un booléen pendant un calcul ne l'arrête pas : utiliser **Interrompre
+le noyau** pour interrompre un entraînement en cours.
+
+Ne pas ouvrir deux connexions de télémétrie en parallèle. Le message attendu
+est `REPRISE du modele, compteur initial: 256` pour la première continuation
+du modèle actuel. Les cas désactivé, sauvegarde seule, sauvegarde suivie de
+l'entraînement, checkpoint existant, checkpoint absent et voiture en mouvement
+ont été vérifiés avec des dépendances factices. L'exécution complète avec
+les interrupteurs désactivés a aussi été vérifiée sous Python 3.9.
+
+Validation hors simulateur avec Python 3.9 / Stable-Baselines3 2.3.2 : modèle
+réel chargé à 256 actions, métadonnées incompatibles refusées, entraînement
+court sur environnement factice avec trois lots et resets après calcul,
+sauvegardes et reprise du compteur de 12 à 20, puis test du vrai `step()`
+avec des capteurs factices. Aucun nouvel entraînement dans Assetto Corsa
+n'a été lancé pendant cette modification. Le mécanisme utilise les événements
+de [callback SB3](https://stable-baselines3.readthedocs.io/en/master/guide/callbacks.html)
+et renouvelle les observations internes de PPO ; le test d'intégration est à
+refaire en cas de changement de version de SB3.
+
+### Installation et premiers tests
 
 1. Ouvre **la racine du dépôt** dans VS Code.
 2. Ouvre `Code/00_Installer_Bibliotheques_Python39.ipynb`.
