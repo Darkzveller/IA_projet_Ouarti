@@ -88,6 +88,51 @@ reste à valider sur une installation disposant des capacités nécessaires.
 
 ## Démarrage
 
+### Évaluer le modèle V3 sans apprentissage
+
+`04_Evaluation/01_Evaluer_Modele.ipynb` utilise maintenant le même checkpoint
+CSP, le même contrôle vJoy V3 et les mêmes observations que l'entraînement.
+Une cellule **REGLAGES**, puis **Tout exécuter**, pilote toute la séquence.
+
+- Par défaut, `ACTIVER_EVALUATION=False` et
+  `ACTIVER_SAUVEGARDE_CHECKPOINT=False` : les fichiers et métadonnées sont
+  vérifiés sans connexion au jeu.
+- Pour un premier essai, mettre `N_EPISODES=3` et
+  `ACTIVER_EVALUATION=True`. Si le jeu a redémarré, immobiliser la voiture
+  au départ choisi et activer aussi `ACTIVER_SAUVEGARDE_CHECKPOINT=True`.
+  Un checkpoint déjà valide est conservé.
+- `MODELES_A_EVALUER` sélectionne un ou plusieurs ZIP, relatifs à
+  `Code/models/`. Le modèle final est sélectionné par défaut. Pour le comparer
+  à mi-parcours, décommenter par exemple
+  `checkpoints/ppo_vision_checkpoint_v3_stage1_65792_steps` si cette sauvegarde
+  existe. Tous les modèles doivent correspondre à la même voiture, au même
+  circuit, au même schéma et à la même étape.
+- Chaque épisode commence par une restauration vérifiée. Le pilotage utilise
+  `deterministic=True`, sans mise à jour et sans coupure de lot PPO. Les
+  fichiers de modèles et leurs métadonnées sont vérifiés par SHA-256 avant
+  et après l'évaluation ; le compteur d'apprentissage doit rester identique.
+- Le tableau final mesure réussite, sorties, collisions détectées,
+  immobilisations, limites, progression, temps pour réussir, vitesse et
+  mouvements du volant. Les erreurs techniques sont comptées séparément et
+  arrêtent la série. Les résultats valides ont leur propre dénominateur.
+- Les fichiers `episodes.csv`, `comparaison.csv`, `etat_session.json` et les
+  journaux détaillés sont écrits dans `reports/evaluation_v3/<session>/`.
+  Ils sont conservés aussi en cas d'interruption ou d'erreur ; un fichier
+  `erreur.txt` explique alors l'arrêt.
+
+Ne pas lancer un entraînement ou un autre client de télémétrie en parallèle.
+Garder le jeu visible pour la caméra. Utiliser **Interrompre le noyau** pour
+arrêter la conduite. Répéter un départ fixe avec une politique déterministe
+peut reproduire le même scénario : ce test mesure la répétabilité de cet
+exercice, pas la généralisation à des circuits inconnus.
+
+Validation du 17 novembre 2026 : notebook entier exécuté en mode désactivé,
+modèle réel à 131 328 actions chargé et prédictions déterministes vérifiées,
+comparaison de deux modèles avec capteurs factices, métriques et exports
+contrôlés, erreurs caméra/reset simulées et nettoyage UDP/vJoy après erreur
+de frein testé. Aucun essai de conduite réel n'a été lancé pour cette mise
+à jour.
+
 ### Continuer le PPO après le premier essai
 
 La cellule **REGLAGES** des notebooks 02 et 03 expose désormais
