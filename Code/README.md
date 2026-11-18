@@ -1,5 +1,9 @@
 # OUARTI — README du dossier `Code/`
 
+## Afficheur de trajectoire à trois agents
+
+Ouvrir le [poste de guidage](06_Trois_Agents/00_Poste_de_guidage.ipynb) pour utiliser la perception et la trajectoire avec un pilote humain. Le troisième agent PPO se charge dans les modes de pilotage et de test qui le demandent. Le [protocole de recette](06_Trois_Agents/PROTOCOLE.md) couvre les essais isolés, l’affichage en direct et le pilotage optionnel. Les carnets PPO V3 décrits plus bas correspondent au prototype monolithique archivé.
+
 **Architecture actuelle :** notebooks Jupyter autonomes sous Python global **3.9.13**, avec le dossier `Code/` à la racine du dépôt, à côté de `assetto_corsa_gym/`. Ce document réunit le README du dossier `Code` et le journal technique **OUARTI — mise en service**, sans remplacer le README général du dépôt.
 
 > **État validé sur le PC :** noyau Jupyter, connexion au simulateur, télémétrie, volant vJoy, pédales vJoy et capture caméra. **Non encore validés :** synchronisation complète des images et de la télémétrie, entraînement PPO et pilotage autonome.
