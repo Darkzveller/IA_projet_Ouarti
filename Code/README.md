@@ -88,6 +88,151 @@ reste à valider sur une installation disposant des capacités nécessaires.
 
 ## Démarrage
 
+### Superviseur local : apprentissage vers un tour complet
+
+Le notebook **`03_Entrainement/06_Superviseur_Local_Autonome.ipynb`** enchaîne
+localement entraînement, sauvegarde, évaluation déterministe et décision.
+Il ne contacte ni Codex ni une API payante. Il applique des règles fixes et
+ne modifie pas lui-même le code ou les hyperparamètres hors du parcours prévu.
+
+Parcours par défaut : **30 m → 100 m → 300 m → 1 000 m → tour complet**.
+Chaque leçon utilise un nouvel agent issu du meilleur précédent. Les lots
+PPO augmentent de 512 à 8 192 pas : les retours au départ entre lots de
+128 pas auraient empêché de pratiquer un tour entier. Les objectifs 300 m et
+1 000 m restent dans le stage 3, avec leurs propres métadonnées et agents.
+Reprendre ces agents via ce superviseur, dont les évaluations utilisent le
+même objectif particulier que leur entraînement.
+
+Pour lancer, ouvrir ce notebook seul avec le jeu dans une session locale et
+modifier **REGLAGES** :
+
+```python
+ACTIVER_SUPERVISEUR = True
+ACTIVER_SAUVEGARDE_CHECKPOINT = False  # True si absent, voiture immobile
+CAMPAGNE = 'vers_un_tour_01'
+DUREE_MAX_HEURES = 8.0
+MAX_CYCLES_PAR_LANCEMENT = 12          # mettre 1 pour le premier essai
+```
+
+Puis **Tout exécuter**. La source par défaut est l'agent stage 2 actuel.
+Le premier passage évalue une copie de référence, puis chaque cycle entraîne
+un candidat distinct. Un candidat en régression est archivé pour inspection,
+mais le prochain cycle repart du meilleur agent. Les petits écarts de
+chronométrage inférieurs à 3 % ne suffisent pas à remplacer le meilleur.
+
+Critères de passage par défaut : **10 épisodes valides**, au moins **90 % de
+réussite**, au plus **5 % de sorties**, aucune collision détectée, sur **deux
+évaluations consécutives**. Pour le tour complet, au moins trois tours sont
+également exigés dans chaque série et aucun tour invalidé n'est accepté.
+Avec 10 essais et 90 % de réussite, le seuil de réussite impose en pratique
+au moins neuf tours réussis par série finale.
+
+Un tour complet exige simultanément une progression nette d'au moins **une
+longueur du circuit**, une augmentation du compteur `LapCount`, et aucun
+`LapInvalidated` depuis le reset. Le départ doit lui-même être valide.
+Un passage précoce de la ligne de départ ne valide donc pas l'objectif. Le
+premier tour réussi est signalé dès que son épisode et sa preuve sont exportés,
+même si la suite de l'évaluation rencontre ensuite un problème technique.
+Cela ne vaut pas encore validation de la fiabilité sur plusieurs séries.
+
+État et rapports : `reports/superviseur_local/<CAMPAGNE>/` contient
+`etat.json`, `evenements.jsonl` et `NOTIFICATION.txt`. L'état indique le meilleur
+agent archivé, les métriques, la leçon et le candidat éventuellement en attente.
+Les rapports détaillés restent aussi dans `reports/evaluation_v3/`. Une
+notification est locale (fichier et signal sonore), sans message envoyé à
+Codex. Les versions précédentes restent accessibles via le gestionnaire 05.
+
+Relancer la même campagne reprend son état ; un candidat sauvegardé après
+entraînement est évalué avant de poursuivre l'apprentissage. Un changement du
+parcours ou des critères demande un nouveau nom de campagne. Les limites de
+temps/cycles peuvent être ajustées pour la prochaine reprise.
+
+Par défaut, la boucle s'arrête après huit heures, douze cycles par lancement,
+huit cycles sur une leçon, quatre cycles sans progrès, ou une panne technique
+persistante après une nouvelle tentative. Les capteurs restent contrôlés ;
+un incident n'est pas compté comme un échec de conduite. Le budget horaire est
+contrôlé pendant les actions et entre les phases, mais un calcul PPO, une
+sauvegarde ou un appel bloqué peut dépasser l'heure limite avant de rendre la
+main. **Interrompre le noyau** reste l'arrêt manuel.
+
+Le PC doit rester allumé, le jeu visible et un seul client de conduite actif.
+L'atteinte du tour complet n'est pas garantie en une nuit ; le système peut
+s'arrêter sur stagnation pour permettre une analyse. Les répétitions depuis
+un départ fixe ne valident pas la généralisation à des circuits inconnus.
+
+Validation hors jeu : exécution désactivée, horizon SB3 réel de 8 192 pas,
+refus des passages de ligne prématurés et des tours invalidés, comparaison des
+candidats, retour au meilleur après régression, progression de campagne,
+notification du premier tour, pause/reprise persistante et arrêt sur erreur
+testés avec des dépendances factices. Aucun entraînement ni tour réel n'a été
+lancé lors de cette création.
+
+### Stages, versions et retour en arrière
+
+Le **stage 1** à 131 328 actions est conservé sous
+`models/ppo_vision_checkpoint_v3_stage1.zip`, avec une copie vérifiée dans
+`models/versions/`. Le **stage 2**, objectif **30 m**, est initialisé dans
+`models/ppo_vision_checkpoint_v3_stage2.zip` avec les mêmes poids et le même
+compteur global. Il n'a encore appris aucune action supplémentaire : ses
+métadonnées indiquent `stage_timesteps=0` et identifient la version parente.
+
+Les notebooks 02 et 03 sont préparés pour le stage 2, avec **4 096 actions**
+supplémentaires et les commandes désactivées par défaut. Après ce premier
+entraînement, le compteur attendu est 135 424 au total et 4 096 dans ce stage.
+Le notebook d'évaluation est aussi réglé pour le stage 2, sur trois épisodes.
+
+- Avant de modifier un agent principal, le code archive son ZIP et ses
+  métadonnées exacts ; une nouvelle version est conservée après sa sauvegarde.
+  Les paires déjà archivées sont dédupliquées par leurs empreintes SHA-256.
+- Chaque dossier de version contient `agent.zip`, `agent_meta.json` et
+  `manifest.json`. Le manifeste décrit le stage, le compteur, l'origine et les
+  empreintes. Une archive altérée est refusée à la lecture. Les fonctions
+  d'entraînement refusent d'écrire dans `models/versions/`.
+- Les checkpoints périodiques conservent aussi l'identifiant de leur session
+  dans leur nom, afin que deux reprises au même compteur ne s'écrasent pas.
+  Ils restent séparés des versions principales pour limiter les duplications.
+- Le modèle précédent et ses récompenses ne sont pas modifiés par un
+  transfert. Le transfert est autorisé uniquement vers l'étape suivante avec
+  un autre nom ; une cible existante est reprise après validation, jamais
+  réinitialisée depuis sa source. Les espaces de contrôle et d'observation
+  doivent rester compatibles.
+
+Pour lancer le stage 2 : dans 02, conserver
+`MODELE_NOM='ppo_vision_checkpoint_v3_stage2'`,
+`ETAPE_APPRENTISSAGE=2`, puis activer l'entraînement et **Tout exécuter**.
+Activer aussi la sauvegarde du checkpoint CSP si le jeu a redémarré, voiture
+immobile au départ voulu. Le checkpoint physique reste en mémoire du jeu ;
+restaurer un ancien agent ne restaure pas à lui seul un checkpoint CSP perdu.
+
+Pour revenir à un ancien agent, ouvrir
+**`03_Entrainement/05_Gerer_Stages_Agents.ipynb`**. Exécuter d'abord le notebook
+avec `ACTIVER_OPERATION=False` pour afficher les versions. Copier la valeur
+`source_selectionnable` de la version souhaitée dans `MODELE_SOURCE`, puis :
+
+```python
+ACTIVER_OPERATION = True
+OPERATION = 'revenir_version'
+MODELE_SOURCE = 'versions/.../agent'  # chemin exact donné par l'inventaire
+NOM_MODELE_CIBLE = 'ppo_vision_checkpoint_v3_stage1_retour_01'
+```
+
+**Tout exécuter** crée une copie sous ce nouveau nom, avec le stage et le
+compteur d'origine. Choisir ensuite ce nom et son stage dans les réglages du
+notebook d'entraînement ou d'évaluation. Pour seulement évaluer une archive,
+le notebook 04.01 accepte directement son chemin `versions/.../agent`.
+
+Le gestionnaire permet aussi `archiver` et `transferer_stage`. Pour préparer
+un futur stage 3, choisir la source stage 2, un nouveau nom de modèle et
+`STAGE_CIBLE=3`. Les archives sont protégées par le code, sans suppression
+automatique. **`models/` est ignoré par Git : un push ne sauvegarde pas les
+agents ; copier ce dossier sur un autre support pour une sauvegarde externe.**
+
+Validation : transfert et restauration testés dans un dossier temporaire,
+écrasement et modification d'archives refusés, deux reprises et compteurs de
+stage contrôlés, sauvegarde sur erreur vérifiée. Le vrai modèle stage 2 a été
+chargé sous SB3 sans conduite ; le ZIP et les métadonnées du stage 1 sont
+restés inchangés. Aucun entraînement réel du stage 2 n'a été lancé.
+
 ### Évaluer le modèle V3 sans apprentissage
 
 `04_Evaluation/01_Evaluer_Modele.ipynb` utilise maintenant le même checkpoint
