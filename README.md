@@ -1003,3 +1003,28 @@ py -3.9 -c "import cv2, mss, numpy, win32event, win32con, win32gui; print('Impor
 ---
 
 **Résumé :** l'architecture 100 % notebooks, Python 3.9 global, la télémétrie et vJoy fonctionnent ; la caméra a nécessité (1) une configuration correcte du worker Python externe, (2) un correctif d'événements Windows pour le Python 3.3 du jeu, puis (3) OpenCV et MSS dans Python 3.9. Les prochaines étapes portent sur l'horodatage/synchronisation des images et de la télémétrie, puis l'entraînement de l'IA.
+
+
+## Guidage en vue cockpit — 19 novembre 2026
+
+L’afficheur pour le pilote humain utilise deux agents. Le premier segmente la caméra, le deuxième choisit sept points de trajectoire et une vitesse indicative. Le troisième agent, un pilote PPO optionnel, peut suivre le même plan. Les essais décrits ici ont été réalisés par relecture des captures, sans action sur le véhicule.
+
+### Annotations et perception
+
+La session d’entraînement `session_20261118_213901` contient 33 images annotées, dont 27 ajoutées. La session de validation indépendante `session_20261118_214916` en contient 24, dont 10 vues supplémentaires en mouvement. Les nouveaux masques délimitent la piste et le fond. Les pixels ambigus portent la valeur 255 et restent exclus du calcul de l’IoU.
+
+Sur ces mêmes 24 images, le nouvel agent 1 atteint une IoU de 0,854 pour le fond et de 0,087 pour la piste. La version précédente obtenait respectivement 0,029 et 0,112. Le seuil d’accès au guidage en direct reste fixé à 0,75 pour la piste. Les poids et les captures sont archivés localement.
+
+### Correction du cadrage de l’agent 2
+
+Sur l’Abarth 500 à Barcelone, les anciennes lignes de mesure tombaient sur le tableau de bord. Le profil `cockpit_abarth500_v1` cherche le passage entre les montants du pare-brise, sur sept hauteurs comprises entre les lignes 109 et 116 de la capture 320 × 240. Les points transmis à l’afficheur restent exprimés dans l’image entière. Ce réglage dépend de la position de la caméra. Le profil `historique` permet de reproduire les anciens résultats et reste utilisé pour la démonstration synthétique.
+
+| Entrée fournie à l’agent 2 | Cadrage historique | Cadrage cockpit |
+|---|---:|---:|
+| Masque annoté, 24 images | 0/24 lignes entièrement sur la piste | 21/24 |
+| Masque annoté, sous-ensemble de 10 images en mouvement | 0/10 | 8/10 |
+| Prédiction de l’agent 1, mêmes 24 images | 0/24 | 0/24 |
+
+Avec les masques annotés, le nouveau cadrage s’abstient sur trois images. Avec les prédictions de l’agent 1, il s’abstient 23 fois et propose une ligne qui traverse des pixels non annotés. Sa validité reste indéterminée. Le prochain travail porte sur la reconnaissance de l’asphalte en mouvement.
+
+**Reproduire le diagnostic.** Dans le [poste de guidage](Code/06_Trois_Agents/00_Poste_de_guidage.ipynb), sélectionner `MODE = 'evaluer_a2_reel'`, les deux sessions ci-dessus, la version A1 `20261118_221346_f019a8a8` et la version A2 `20261118_213043_aeaeeee8` si leurs archives locales sont disponibles. Exécuter une fois avec `CADRAGE_REEL = 'historique'`, puis avec `'cockpit_abarth500_v1'`. Chaque rapport sous `Code/reports/trois_agents/` contient le verdict pour la perception apprise et, sous `reference`, le verdict obtenu avec le masque annoté. Cette évaluation hors jeu est disponible même lorsque le score de perception est insuffisant pour la conduite. [Protocole complet](Code/06_Trois_Agents/PROTOCOLE.md)
