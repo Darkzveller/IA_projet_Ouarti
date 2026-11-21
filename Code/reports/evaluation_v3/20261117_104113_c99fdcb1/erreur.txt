@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "C:\Users\elkat\AppData\Local\Temp\ipykernel_16252\1640423133.py", line 84, in executer_evaluation
+    raise RuntimeError('Capteurs indisponibles : '+str(info['sensor_error']))
+RuntimeError: Capteurs indisponibles : Delta temps telemetrie invalide: 1.0921459197998047

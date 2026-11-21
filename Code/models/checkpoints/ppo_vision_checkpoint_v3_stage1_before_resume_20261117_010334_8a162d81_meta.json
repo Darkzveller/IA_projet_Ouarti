@@ -1,0 +1,14 @@
+{
+  "model": "ppo_vision_checkpoint_v3_stage1",
+  "track": "ks_barcelona-layout_gp",
+  "car": "abarth500",
+  "progress_sign": 1,
+  "control": "vjoy_local_xyz_pedales_exclusives_v3",
+  "observation": "dict_image_1x84x84_state_9",
+  "image_color": "gray_from_plugin",
+  "total_timesteps": 256,
+  "saved_at": 1794867558.2049823,
+  "curriculum_stage": 1,
+  "reset": "csp_snapshot_verified",
+  "goal_m": 10.0
+}

@@ -1,0 +1,2 @@
+modele,episodes,episodes_valides,erreurs_techniques,reussite_pct,sortie_pct,collision_detectee_pct,immobilisation_pct,limite_pct,temps_median_reussite_s,progression_moyenne_m,reward_moyenne,volant_sature_pct,variation_volant_moyenne,vitesse_max_kmh
+ppo_vision_checkpoint_v3_stage1,3,3,0,100.0,0.0,0.0,0.0,0.0,3.0469999999913853,10.749535719912728,46.4732836059319,0.0,0.0016778927100332159,37.023973846435545

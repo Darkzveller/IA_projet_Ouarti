@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "signature": "7339eb39ab20891d8e404348c82b71b35e82db310c36ef54cdf5f6ff76e6aa0c",
+  "campagne": "vers_un_tour_01",
+  "statut": "stagnation",
+  "lesson_index": 1,
+  "lesson_source": "versions\\sup_vers_un_tour_01_30m_c1_fa5612\\20261117_120215_d0e6718d\\agent",
+  "best_model": "versions\\sup_vers_un_tour_01_100m_base_a6b1e7\\20261117_121531_af48aece\\agent",
+  "best_metrics": {
+    "modele": "sup_vers_un_tour_01_100m_base_a6b1e7",
+    "episodes": 10,
+    "episodes_valides": 10,
+    "erreurs_techniques": 0,
+    "reussite_pct": 0.0,
+    "sortie_pct": 100.0,
+    "collision_detectee_pct": 0.0,
+    "immobilisation_pct": 0.0,
+    "limite_pct": 0.0,
+    "tours_complets": 0,
+    "tours_invalides": 0,
+    "temps_median_reussite_s": null,
+    "progression_moyenne_m": 94.6412137473,
+    "reward_moyenne": -6.5220970476,
+    "volant_sature_pct": 0.0,
+    "variation_volant_moyenne": 0.0027694931,
+    "vitesse_max_kmh": 95.3028671265
+  },
+  "best_report": "C:\\Users\\elkat\\Documents\\Github\\IA_projet_Ouarti_ds_github\\Code\\reports\\evaluation_v3\\20261117_121532_40856ffa",
+  "pending": null,
+  "total_cycles": 6,
+  "cycles_lecon": 4,
+  "evaluations_consecutives": 0,
+  "sans_progres": 4,
+  "premier_tour_confirme": false,
+  "created_at": 1794912107.5588193,
+  "dernier_evenement": {
+    "time": 1794917150.188128,
+    "type": "arret_stagnation"
+  },
+  "fin_lancement": 1794917150.1921282
+}

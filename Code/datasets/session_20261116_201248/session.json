@@ -1,0 +1,85 @@
+{
+  "type": "telemetry_only",
+  "created_at": "2026-11-16T20:12:48.351520",
+  "duration_s": 30,
+  "config": {
+    "opponents_server_port": 2346,
+    "ego_sampling_freq_event_name": "Local\\EgoSamplingFreqEvent",
+    "screen_capture_save_path": "captures",
+    "enable_profiler": false,
+    "config_python_env_name": "p309",
+    "screen_capture_worker": "screen_capture_worker.py",
+    "screen_capture_verbose": false,
+    "screen_capture_enable": true,
+    "ego_server_port": 2345,
+    "simulation_management_server_host_name": "0.0.0.0",
+    "vjoy_executed_by_server": false,
+    "ego_server_host_name": "0.0.0.0",
+    "color_mode": "gray",
+    "trigger_image_capture_event_name": "Local\\TriggerImageCapture",
+    "final_image_width": 320,
+    "simulation_management_server_port": 2347,
+    "relocate_screen": true,
+    "ego_sampling_freq": 25,
+    "sampling_time": 0.02,
+    "screen_capture_freq": 25,
+    "screen_capture_save_to_disk": false,
+    "opponents_server_host_name": "0.0.0.0",
+    "sampling_freq": 50,
+    "final_image_height": 240,
+    "version": "0.0.1",
+    "config_python_executable": "C:\\Users\\elkat\\AppData\\Local\\Programs\\Python\\Python39\\python.exe",
+    "telemetry_sampling_freq": 0,
+    "enable_alternative_python_interpreter": true
+  },
+  "static": {
+    "TyreContactPoint_RL": [
+      170.4895477294922,
+      2.1736457347869873,
+      -537.9347534179688
+    ],
+    "TyreContactPoint_FR": [
+      173.15118408203125,
+      2.1115801334381104,
+      -538.30029296875
+    ],
+    "TrackConfiguration": "layout_gp",
+    "CAR_WHEEL_R": [
+      0.3081499934196472,
+      0.3081499934196472,
+      0.3081499934196472,
+      0.3081499934196472
+    ],
+    "WindDirection": 0,
+    "CAR_WHEELBASE": 2.2935840354778687,
+    "WorldPosition": [
+      172.082275390625,
+      2.670353412628174,
+      -538.3218383789062
+    ],
+    "penaltiesEnabled": 1,
+    "TrackLength": 4591.88720703125,
+    "LastSplits": [
+      0,
+      0,
+      0
+    ],
+    "CarName": "abarth500",
+    "CAR_TRACK": 1.4002022345787855,
+    "isCarInPit": 0,
+    "WindSpeed": 10,
+    "isCarInPitlane": 0,
+    "autoShifterOn": 1,
+    "TyreContactPoint_FL": [
+      172.2631378173828,
+      2.1364705562591553,
+      -539.3885498046875
+    ],
+    "TrackName": "ks_barcelona",
+    "TyreContactPoint_RR": [
+      171.37547302246094,
+      2.1502315998077393,
+      -536.8507080078125
+    ]
+  }
+}

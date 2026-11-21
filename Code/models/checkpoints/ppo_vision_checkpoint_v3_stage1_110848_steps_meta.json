@@ -1,0 +1,21 @@
+{
+  "model": "ppo_vision_checkpoint_v3_stage1",
+  "track": "ks_barcelona-layout_gp",
+  "car": "abarth500",
+  "progress_sign": 1,
+  "control": "vjoy_local_xyz_pedales_exclusives_v3",
+  "observation": "dict_image_1x84x84_state_9",
+  "image_color": "gray_from_plugin",
+  "curriculum_stage": 1,
+  "reset": "csp_snapshot_verified",
+  "goal_m": 10.0,
+  "episode_boundary": "rollout_truncated_then_reset_after_update",
+  "run_id": "20261117_010334_8a162d81",
+  "log_dir": "C:\\Users\\elkat\\Documents\\Github\\IA_projet_Ouarti_ds_github\\Code\\reports\\ppo_checkpoint_v3_stage1\\20261117_010334_8a162d81",
+  "episode_seconds": 25,
+  "action_interval": 0.12,
+  "reward_version": "offtrack_penalty_v2",
+  "offtrack_penalty": 100.0,
+  "total_timesteps": 110848,
+  "saved_at": 1794895661.425321
+}

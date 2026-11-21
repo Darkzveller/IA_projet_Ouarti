@@ -1,0 +1,41 @@
+{
+  "session": "20261117_104304_d9c4d00a",
+  "statut": "terminee",
+  "debut_unix": 1794908584.0402517,
+  "deterministic": true,
+  "apprentissage": false,
+  "coupures_ppo": false,
+  "episodes_demandes_par_modele": 30,
+  "track": "ks_barcelona-layout_gp",
+  "car": "abarth500",
+  "curriculum_stage": 1,
+  "episode_seconds": 25,
+  "action_interval": 0.12,
+  "offtrack_penalty": 100.0,
+  "anchor": {
+    "track": "ks_barcelona-layout_gp",
+    "car": "abarth500",
+    "x": -538.32373046875,
+    "y": 172.07327270507812,
+    "yaw": 2.2552812099456787,
+    "created_at": 1794908473.6521852,
+    "note": "Checkpoint CSP en memoire, non reutilisable apres redemarrage du jeu."
+  },
+  "modeles": [
+    {
+      "nom": "ppo_vision_checkpoint_v3_stage1",
+      "path": "C:\\Users\\elkat\\Documents\\Github\\IA_projet_Ouarti_ds_github\\Code\\models\\ppo_vision_checkpoint_v3_stage1.zip",
+      "sha256": "b07e002b0d59a1beae6e3b47b1e59cb7f6036cb9205b53d0646700e1e9d94a42",
+      "meta_sha256": "ea1eed3ddcc32d68c45900da57a6d5e1f09165f865afae316f99171056cc5dfb",
+      "compteur": 131328
+    }
+  ],
+  "limites": [
+    "Meme depart fixe, repetitions deterministes : pas une mesure de generalisation.",
+    "Progression geometrique discretisee comme pendant entrainement.",
+    "Aucune collision detectee ne valide pas le detecteur."
+  ],
+  "fin_unix": 1794908696.8389122,
+  "fichiers_modeles_inchanges": true,
+  "compteurs_inchanges": true
+}

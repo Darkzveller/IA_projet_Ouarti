@@ -1,0 +1,12 @@
+{
+  "version_format": 1,
+  "source": "C:\\Users\\elkat\\Documents\\Github\\IA_projet_Ouarti_ds_github\\Code\\models\\ppo_vision_checkpoint_v3_stage2",
+  "motif": "sauvegarde_agent",
+  "created_at": 1794910245.1684575,
+  "model": "ppo_vision_checkpoint_v3_stage2",
+  "curriculum_stage": 2,
+  "goal_m": 30.0,
+  "total_timesteps": 135424,
+  "zip_sha256": "7a7df1a8ef46ad35046b83d1d33f1defd7d5fa345534eb4793d182b3573d445c",
+  "meta_sha256": "bf4ad957f854f50e065f650cbef52872f22181f42175575c411e8d838f2de390"
+}

@@ -1,0 +1,78 @@
+{
+  "run_id": "20261117_010334_8a162d81",
+  "source": "C:\\Users\\elkat\\Documents\\Github\\IA_projet_Ouarti_ds_github\\Code\\reports\\ppo_checkpoint_v3_stage1\\20261117_010334_8a162d81",
+  "model": "Code\\models\\ppo_vision_checkpoint_v3_stage1.zip",
+  "timezone": "Europe/Paris",
+  "debut": "2026-11-17T01:03:36.165020+01:00",
+  "fin": "2026-11-17T08:15:51.648627+01:00",
+  "duree_s": 25935.483606815338,
+  "nouvelles_actions": 131072,
+  "compteur_modele": 131328,
+  "ensemble": {
+    "episodes": 6063,
+    "succes_10m_pct": 75.06185056902524,
+    "sorties_pct": 8.477651327725548,
+    "coupures_ppo_pct": 15.602836879432624,
+    "immobilisations_pct": 0.8741547088899885,
+    "reward_moyenne": 29.17196526495446,
+    "progression_moyenne_m": 9.288638366676784,
+    "pas_medians_si_succes": 21.0,
+    "duree_mediane_si_succes_s": 3.1350038051605225
+  },
+  "premiers_500": {
+    "episodes": 500,
+    "succes_10m_pct": 72.8,
+    "sorties_pct": 6.2,
+    "coupures_ppo_pct": 20.4,
+    "immobilisations_pct": 0.6,
+    "reward_moyenne": 30.236303712969377,
+    "progression_moyenne_m": 9.026513236008592,
+    "pas_medians_si_succes": 25.0,
+    "duree_mediane_si_succes_s": 3.6745636463165283
+  },
+  "derniers_500": {
+    "episodes": 500,
+    "succes_10m_pct": 77.60000000000001,
+    "sorties_pct": 5.2,
+    "coupures_ppo_pct": 16.0,
+    "immobilisations_pct": 1.4000000000000001,
+    "reward_moyenne": 33.30753678260679,
+    "progression_moyenne_m": 9.44044807787356,
+    "pas_medians_si_succes": 21.0,
+    "duree_mediane_si_succes_s": 3.1826101541519165
+  },
+  "totaux": {
+    "terminated": 5117,
+    "truncated": 946,
+    "milestone_reached": 4551,
+    "offtrack": 514,
+    "collision": 0,
+    "idle": 53,
+    "rollout_cut": 946,
+    "time_limit": 0
+  },
+  "capteurs": {
+    "ecart_image_telemetrie_moyen_ms": 44.227033909919086,
+    "ecart_p99_ms": 86.46914720535241,
+    "ecart_max_ms": 317.163467407226,
+    "rapport_monitor_coherent": true,
+    "rapports_boite_absents": 131072
+  },
+  "commandes": {
+    "direction_saturee_pct": 36.373138427734375,
+    "gaz_moyen_pct": 87.06439581364407,
+    "frein_moyen_pct": 4.574339123357162,
+    "gaz_frein_simultanes": 0,
+    "vitesse_moyenne_kmh": 10.575247899001194,
+    "vitesse_max_kmh": 37.603698348999025
+  },
+  "limites": [
+    "Statistiques de collecte PPO avec exploration, pas evaluation deterministe independante.",
+    "Un seul depart fixe, objectif de 10 m, une voiture et un circuit.",
+    "Coupures de lots PPO presentes : 946 episodes, non assimilables a des echecs.",
+    "Progression discretisee par le point central de piste le plus proche (~1,54 m ici).",
+    "Aucune collision detectee ne prouve pas que la detection de collision fonctionne.",
+    "Journal du notebook sauvegarde obsolete : le modele, le JSONL, le monitor et TensorBoard sont les sources de cette analyse."
+  ],
+  "archive_modele_verifiee": true
+}

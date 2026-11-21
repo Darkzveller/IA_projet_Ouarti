@@ -1,0 +1,42 @@
+{
+  "session": "20261117_121437_d993e5f6",
+  "statut": "terminee",
+  "debut_unix": 1794914077.946959,
+  "deterministic": true,
+  "apprentissage": false,
+  "coupures_ppo": false,
+  "episodes_demandes_par_modele": 10,
+  "track": "ks_barcelona-layout_gp",
+  "car": "abarth500",
+  "curriculum_stage": 2,
+  "episode_seconds": 60,
+  "goal_m": 30.0,
+  "action_interval": 0.12,
+  "offtrack_penalty": 100.0,
+  "anchor": {
+    "track": "ks_barcelona-layout_gp",
+    "car": "abarth500",
+    "x": -538.3145751953125,
+    "y": 172.05540466308594,
+    "yaw": 2.255054235458374,
+    "created_at": 1794912112.641941,
+    "note": "Checkpoint CSP en memoire, non reutilisable apres redemarrage du jeu."
+  },
+  "modeles": [
+    {
+      "nom": "sup_vers_un_tour_01_30m_c2_f45a17",
+      "path": "C:\\Users\\elkat\\Documents\\Github\\IA_projet_Ouarti_ds_github\\Code\\models\\sup_vers_un_tour_01_30m_c2_f45a17.zip",
+      "sha256": "c924ac33ffcc1cad8bf9c6b7364b2f45a01da3469800371319931e485b9fd806",
+      "meta_sha256": "2ef31477bf961b3d06ea34961d3273e2bc3d175234138608c401831953ee1653",
+      "compteur": 143616
+    }
+  ],
+  "limites": [
+    "Meme depart fixe, repetitions deterministes : pas une mesure de generalisation.",
+    "Progression geometrique discretisee comme pendant entrainement.",
+    "Aucune collision detectee ne valide pas le detecteur."
+  ],
+  "fin_unix": 1794914131.2919235,
+  "fichiers_modeles_inchanges": true,
+  "compteurs_inchanges": true
+}

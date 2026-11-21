@@ -1,0 +1,12 @@
+{
+  "version_format": 1,
+  "source": "C:\\Users\\elkat\\Documents\\Github\\IA_projet_Ouarti_ds_github\\Code\\models\\ppo_vision_checkpoint_v3_stage2",
+  "motif": "initialisation_agent",
+  "created_at": 1794909092.5406682,
+  "model": "ppo_vision_checkpoint_v3_stage2",
+  "curriculum_stage": 2,
+  "goal_m": 30.0,
+  "total_timesteps": 131328,
+  "zip_sha256": "b07e002b0d59a1beae6e3b47b1e59cb7f6036cb9205b53d0646700e1e9d94a42",
+  "meta_sha256": "b0c9ef85be6ac72148a326f350c0ffbaf26b6d8e433e6192552a0b6222694ad5"
+}

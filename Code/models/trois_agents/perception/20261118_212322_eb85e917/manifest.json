@@ -1,0 +1,27 @@
+{
+  "images": 48,
+  "iou_synthetique": {
+    "fond": 0.954288494509059,
+    "piste": 0.9651268931115168,
+    "vibreur": 0.5733298367534255,
+    "herbe": 0.8032525250171829,
+    "gravier": 0.7011598132248833,
+    "mur": 0.965910386500969,
+    "vehicule_obstacle": 0.787116139459709
+  },
+  "domaine": "synthetique",
+  "classes": [
+    "fond",
+    "piste",
+    "vibreur",
+    "herbe",
+    "gravier",
+    "mur",
+    "vehicule_obstacle"
+  ],
+  "version": "20261118_212322_eb85e917",
+  "type_agent": "perception",
+  "contrat": 1,
+  "fichier": "agent.pt",
+  "sha256": "0cdb4494e186f40a32837d9935b1ec3beafd4ee3412a7d506f2e01247d2e598e"
+}

@@ -1,0 +1,12 @@
+{
+  "version_format": 1,
+  "source": "C:\\Users\\elkat\\Documents\\Github\\IA_projet_Ouarti_ds_github\\Code\\models\\sup_vers_un_tour_01_100m_c3_fa6be8",
+  "motif": "sauvegarde_agent",
+  "created_at": 1794914882.0108287,
+  "model": "sup_vers_un_tour_01_100m_c3_fa6be8",
+  "curriculum_stage": 3,
+  "goal_m": 100.0,
+  "total_timesteps": 143616,
+  "zip_sha256": "e60f8311613e465c2c92c7b8ef9b3619e4a5d82696eb3fe83ce183e867fc7d33",
+  "meta_sha256": "dac3afacd3c007cdf503fbfe5c16abe107bf87a050783d46bef980f344650f7f"
+}

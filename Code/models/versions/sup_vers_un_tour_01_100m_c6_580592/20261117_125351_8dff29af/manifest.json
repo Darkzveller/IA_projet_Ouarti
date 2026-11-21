@@ -1,0 +1,12 @@
+{
+  "version_format": 1,
+  "source": "C:\\Users\\elkat\\Documents\\Github\\IA_projet_Ouarti_ds_github\\Code\\models\\sup_vers_un_tour_01_100m_c6_580592",
+  "motif": "initialisation_agent",
+  "created_at": 1794916432.0339494,
+  "model": "sup_vers_un_tour_01_100m_c6_580592",
+  "curriculum_stage": 3,
+  "goal_m": 100.0,
+  "total_timesteps": 139520,
+  "zip_sha256": "90467045eb2f73bae9191238ea850fa8b2529247ad8f2d5d8ab7dafb513a8f47",
+  "meta_sha256": "4fbf58d442565e0d597033d35ed8463fd1a8395286db4dbd47751b37d7beb49e"
+}

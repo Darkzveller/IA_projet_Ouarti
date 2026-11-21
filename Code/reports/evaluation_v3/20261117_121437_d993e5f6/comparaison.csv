@@ -1,0 +1,2 @@
+modele,episodes,episodes_valides,erreurs_techniques,reussite_pct,sortie_pct,collision_detectee_pct,immobilisation_pct,limite_pct,tours_complets,tours_invalides,temps_median_reussite_s,progression_moyenne_m,reward_moyenne,volant_sature_pct,variation_volant_moyenne,vitesse_max_kmh
+sup_vers_un_tour_01_30m_c2_f45a17,10,10,0,100.0,0.0,0.0,0.0,0.0,0,0,4.609500000005937,31.460908193968862,60.79378577565135,0.0,0.0027213249955389458,59.63527221679688

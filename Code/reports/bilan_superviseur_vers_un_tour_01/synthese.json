@@ -1,0 +1,26 @@
+{
+  "campagne": "vers_un_tour_01",
+  "analyse_le": "2026-11-18",
+  "statut": "stagnation",
+  "debut": "2026-11-17T11:41:47.558819+01:00",
+  "fin": "2026-11-17T13:05:50.192128+01:00",
+  "duree_minutes": 84.04388848145803,
+  "cycles": 6,
+  "actions_collectees": 24576,
+  "evaluations": 8,
+  "episodes_evalues": 80,
+  "erreurs_techniques_evaluation": 0,
+  "tours_complets": 0,
+  "objectif_30m_valide": true,
+  "objectif_100m_valide": false,
+  "camera_gap_max_s": 0.100998878479003,
+  "reset_distance_max_m": 0.00146873275767,
+  "meilleur_agent_30m": "Code\\models\\versions\\sup_vers_un_tour_01_30m_c1_fa5612\\20261117_120215_d0e6718d\\agent",
+  "meilleur_repli_100m": "Code\\models\\versions\\sup_vers_un_tour_01_100m_base_a6b1e7\\20261117_121531_af48aece\\agent",
+  "poids_identiques_30m_et_repli_100m": true,
+  "limites": [
+    "Un meme depart et des repetitions deterministes : pas de generalisation mesuree.",
+    "Les sorties sont ici confirmees par la geometrie utilisee par le code ; une verification visuelle du calage reste utile.",
+    "Les causes avancees pour l apprentissage doivent etre testees par comparaison controlee."
+  ]
+}

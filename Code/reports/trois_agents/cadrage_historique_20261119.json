@@ -1,0 +1,255 @@
+{
+  "session": "session_20261118_214916",
+  "images": 24,
+  "cadrage": "historique",
+  "reference": {
+    "couverture": 0.0,
+    "franchissements": 0
+  },
+  "couverture": 0.0,
+  "franchissements": 0,
+  "details": [
+    {
+      "image": "frame_000000.png",
+      "vitesse_ms": 0.03944934532046318,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000001.png",
+      "vitesse_ms": 0.04189043119549751,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000002.png",
+      "vitesse_ms": 0.044167786836624146,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000003.png",
+      "vitesse_ms": 0.02938663400709629,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000004.png",
+      "vitesse_ms": 0.006731404457241297,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000005.png",
+      "vitesse_ms": 0.01588614471256733,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000006.png",
+      "vitesse_ms": 0.004210646729916334,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000007.png",
+      "vitesse_ms": 0.0037135896272957325,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000008.png",
+      "vitesse_ms": 0.0019122852245345712,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000009.png",
+      "vitesse_ms": 0.006720205303281546,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000010.png",
+      "vitesse_ms": 0.007744589354842901,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000011.png",
+      "vitesse_ms": 0.008130865171551704,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000012.png",
+      "vitesse_ms": 0.009515327401459217,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000013.png",
+      "vitesse_ms": 0.01029422227293253,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000270.png",
+      "vitesse_ms": 2.2312543392181396,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000300.png",
+      "vitesse_ms": 7.053214073181152,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000330.png",
+      "vitesse_ms": 12.138504981994629,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000360.png",
+      "vitesse_ms": 14.49830436706543,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000390.png",
+      "vitesse_ms": 16.022319793701172,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000420.png",
+      "vitesse_ms": 17.242996215820312,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000445.png",
+      "vitesse_ms": 18.364643096923828,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000465.png",
+      "vitesse_ms": 19.214920043945312,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000480.png",
+      "vitesse_ms": 19.840356826782227,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    },
+    {
+      "image": "frame_000499.png",
+      "vitesse_ms": 20.646453857421875,
+      "reference": {
+        "etat": "indisponible",
+        "raison": "Aucun passage continu devant la voiture"
+      },
+      "etat": "indisponible",
+      "raison": "Aucun passage continu devant la voiture"
+    }
+  ],
+  "version_a1": "20261118_221346_f019a8a8",
+  "version_a2": "20261118_213043_aeaeeee8"
+}

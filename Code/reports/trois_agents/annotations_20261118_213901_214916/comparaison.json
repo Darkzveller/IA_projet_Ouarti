@@ -1,0 +1,66 @@
+{
+  "ancien": {
+    "version": "20261118_220413_fb5d514d",
+    "groupes": {
+      "initiales": {
+        "fond": 0.0,
+        "piste": 0.22517773964206914,
+        "vibreur": null,
+        "herbe": null,
+        "gravier": null,
+        "mur": null,
+        "vehicule_obstacle": 0.0
+      },
+      "en_mouvement": {
+        "fond": 0.0524068031098212,
+        "piste": 0.06425264034129338,
+        "vibreur": 0.0,
+        "herbe": 0.0,
+        "gravier": 0.0,
+        "mur": 0.0,
+        "vehicule_obstacle": 0.0
+      },
+      "ensemble": {
+        "fond": 0.029395639154822656,
+        "piste": 0.11220278315497278,
+        "vibreur": 0.0,
+        "herbe": 0.0,
+        "gravier": 0.0,
+        "mur": 0.0,
+        "vehicule_obstacle": 0.0
+      }
+    }
+  },
+  "nouveau": {
+    "version": "20261118_221346_f019a8a8",
+    "groupes": {
+      "initiales": {
+        "fond": 0.913582946160153,
+        "piste": 0.13000367242012487,
+        "vibreur": null,
+        "herbe": null,
+        "gravier": null,
+        "mur": null,
+        "vehicule_obstacle": 0.0
+      },
+      "en_mouvement": {
+        "fond": 0.8046989720998532,
+        "piste": 0.06413394693038285,
+        "vibreur": 0.0,
+        "herbe": 0.0,
+        "gravier": 0.0,
+        "mur": 0.0,
+        "vehicule_obstacle": 0.0
+      },
+      "ensemble": {
+        "fond": 0.8535616169544741,
+        "piste": 0.08704259531259978,
+        "vibreur": 0.0,
+        "herbe": 0.0,
+        "gravier": 0.0,
+        "mur": 0.0,
+        "vehicule_obstacle": 0.0
+      }
+    }
+  }
+}

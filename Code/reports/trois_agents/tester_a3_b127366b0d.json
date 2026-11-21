@@ -1,0 +1,12 @@
+{
+  "version_a3": "20261118_212124_17fcae3c",
+  "pas_entrainement_banc": 512,
+  "episodes_banc": 3,
+  "sorties_banc": 0,
+  "ecart_image_moyen": 0.0809906590131093,
+  "selections": [
+    "20261118_212119_63345d51",
+    "20261118_212121_989b9c9d",
+    ""
+  ]
+}

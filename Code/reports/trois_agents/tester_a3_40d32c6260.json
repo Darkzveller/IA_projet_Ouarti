@@ -1,0 +1,11 @@
+{
+  "pas_entrainement_banc": 512,
+  "episodes_banc": 3,
+  "sorties_banc": 0,
+  "ecart_image_moyen": 0.0809906590131093,
+  "selections": [
+    "20261118_211520_bdb2ac01",
+    "20261118_211522_c17c042d",
+    ""
+  ]
+}

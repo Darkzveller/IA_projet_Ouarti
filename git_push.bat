@@ -1,2 +1,2 @@
 echo off
-git status && git add . && git commit -m "ajout nouveau dataset" && git push
+git status && git add . && git commit -m "Git pushing" && git push

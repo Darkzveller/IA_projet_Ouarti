@@ -1,0 +1,2 @@
+modele,episodes,episodes_valides,erreurs_techniques,reussite_pct,sortie_pct,collision_detectee_pct,immobilisation_pct,limite_pct,tours_complets,tours_invalides,temps_median_reussite_s,progression_moyenne_m,reward_moyenne,volant_sature_pct,variation_volant_moyenne,vitesse_max_kmh
+sup_vers_un_tour_01_30m_base_68b2dd,10,10,0,0.0,100.0,0.0,0.0,0.0,0,0,,17.750315170645536,-82.8660850167619,0.0,0.0003798756064200888,42.77277603149414
