@@ -1,0 +1,15 @@
+{
+  "episode": 1,
+  "arrivee": false,
+  "tour": false,
+  "sortie": false,
+  "collision": false,
+  "perte_guidage": "Aucun passage continu devant la voiture",
+  "progression_m": 3360.157047463243,
+  "ecart_image_moyen": 0.03180304908119472,
+  "versions": [
+    "20261123_064246_bb00ca1e",
+    "20261123_064311_1622081c",
+    "20261123_184107_1504517d"
+  ]
+}

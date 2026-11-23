@@ -1,0 +1,60 @@
+{
+  "episodes": [
+    {
+      "episode": 1,
+      "arrivee": false,
+      "tour": false,
+      "sortie": false,
+      "collision": false,
+      "perte_guidage": "Aucun passage continu devant la voiture",
+      "progression_m": 30.83856166224996,
+      "ecart_image_moyen": 0.06595579098010886
+    },
+    {
+      "episode": 2,
+      "arrivee": false,
+      "tour": false,
+      "sortie": false,
+      "collision": false,
+      "perte_guidage": "Aucun passage continu devant la voiture",
+      "progression_m": 30.838561662250868,
+      "ecart_image_moyen": 0.0662245092720821
+    },
+    {
+      "episode": 3,
+      "arrivee": false,
+      "tour": false,
+      "sortie": false,
+      "collision": false,
+      "perte_guidage": "Aucun passage continu devant la voiture",
+      "progression_m": 30.838561662250413,
+      "ecart_image_moyen": 0.06704824957354315
+    },
+    {
+      "episode": 4,
+      "arrivee": false,
+      "tour": false,
+      "sortie": false,
+      "collision": false,
+      "perte_guidage": "Aucun passage continu devant la voiture",
+      "progression_m": 30.83856166224996,
+      "ecart_image_moyen": 0.0666186604006537
+    },
+    {
+      "episode": 5,
+      "arrivee": false,
+      "tour": false,
+      "sortie": false,
+      "collision": false,
+      "perte_guidage": "Aucun passage continu devant la voiture",
+      "progression_m": 30.838561662250868,
+      "ecart_image_moyen": 0.0666024479372748
+    }
+  ],
+  "version_a3": "20261123_160331_488011fe",
+  "selections": [
+    "20261123_064246_bb00ca1e",
+    "20261123_064311_1622081c",
+    "20261123_160331_488011fe"
+  ]
+}

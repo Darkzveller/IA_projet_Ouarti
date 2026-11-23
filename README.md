@@ -10,6 +10,8 @@ Les 4 machines finissent avec le même environnement Python (conda
 `p309`), pour que le code circule sans rien changer.
 
 > **Mise à jour du 12 novembre 2026 — configuration actuelle sur le PC testé :** le développement OUARTI se fait dans `Code/`, en notebooks Jupyter indépendants avec le **Python global 3.9.13** ; télémétrie, volant, pédales et capture caméra sont validés. Les indications historiques ci-dessous concernant Conda `p309`, le Makefile, `ouarti_stage1` et Python 3.11 restent conservées comme historique et ne remplacent pas la configuration actuelle détaillée en fin de document.
+>
+> **Mise à jour du 23/11/2026 — avancement 3 agents sur Imola (vue capot, Abarth 500) :** la chaîne complète `Code/06_Trois_Agents/` fonctionne en jeu sous l'environnement `p309` (GPU RTX 3050 Ti). Le **HUD temps réel** tourne de façon fluide (`76 FPS` GPU), même s'il a encore du mal à bien percevoir les virages au loin (et reste plafonné à `50 km/h`). L'**Agent 3 (PPO)** a validé les stages `10 m`, `30 m`, `100 m` (`10/10`) puis bouclé **`3/3` tours complets d'Imola (`4 906 m`) sans sortie ni collision**, avec des points d'amélioration identifiés (vitesse lente et légers zigzags). Tous les détails, réussites et problèmes actuels sont dans la [section du 23/11/2026 en fin de document](#mise-à-jour-du-23112026--vue-capot-imola-3-agents-et-tours-complets-autonomes).
 
 ---
 
@@ -31,6 +33,7 @@ Les 4 machines finissent avec le même environnement Python (conda
 - [Point de vigilance](#point-de-vigilance)
 - [Mise à jour — dossier Code et notebooks Jupyter](#mise-à-jour--dossier-code-et-notebooks-jupyter)
 - [Journal de mise en service — corrections vérifiées](#journal-de-mise-en-service--corrections-vérifiées)
+- [Mise à jour du 23/11/2026 — Vue capot Imola, 3 agents et tours complets autonomes](#mise-à-jour-du-23112026--vue-capot-imola-3-agents-et-tours-complets-autonomes)
 
 ---
 
@@ -1028,3 +1031,67 @@ Sur l’Abarth 500 à Barcelone, les anciennes lignes de mesure tombaient sur le
 Avec les masques annotés, le nouveau cadrage s’abstient sur trois images. Avec les prédictions de l’agent 1, il s’abstient 23 fois et propose une ligne qui traverse des pixels non annotés. Sa validité reste indéterminée. Le prochain travail porte sur la reconnaissance de l’asphalte en mouvement.
 
 **Reproduire le diagnostic.** Dans le [poste de guidage](Code/06_Trois_Agents/00_Poste_de_guidage.ipynb), sélectionner `MODE = 'evaluer_a2_reel'`, les deux sessions ci-dessus, la version A1 `20261118_221346_f019a8a8` et la version A2 `20261118_213043_aeaeeee8` si leurs archives locales sont disponibles. Exécuter une fois avec `CADRAGE_REEL = 'historique'`, puis avec `'cockpit_abarth500_v1'`. Chaque rapport sous `Code/reports/trois_agents/` contient le verdict pour la perception apprise et, sous `reference`, le verdict obtenu avec le masque annoté. Cette évaluation hors jeu est disponible même lorsque le score de perception est insuffisant pour la conduite. [Protocole complet](Code/06_Trois_Agents/PROTOCOLE.md)
+
+---
+
+## Mise à jour du 23/11/2026 — Vue capot Imola, 3 agents et tours complets autonomes
+
+Cette section complète le journal précédent (sans rien supprimer de l'historique) avec les changements, les réussites et les problèmes encore présents au **23/11/2026** sur la chaîne à trois agents (`Code/06_Trois_Agents/`).
+
+### 1. Contexte de travail (23/11/2026)
+
+- **Circuit et voiture :** Imola (`imola`) avec l'Abarth 500 (`abarth500`), **vue capot** (`CADRAGE_REEL = 'capot_abarth500_v1'`), caméra couleur `bgr` `640×360` à `25 FPS`.
+- **Contrainte conservée :** l'Agent 1 et l'Agent 2 fonctionnent **100 % à partir de la caméra** (aucune carte du circuit ni `fast_lane.ai` utilisée pour le guidage). L'Agent 3 (PPO) suit uniquement les 7 points et la vitesse cible fournis par l'Agent 2, plus la vitesse et le lacet mesurés.
+
+### 2. Changements réalisés le 23/11/2026 (explication simple)
+
+- **Nouveaux jeux de données (2 tours complets indépendants d'Imola) :**
+  - Entraînement : `session_20261123_045440` (`240` images propres annotées couvrant tout le tour, y compris les zones d'ombres d'arbres du secteur 1 et les virages serrés ; toutes les sorties gravier exclues).
+  - Validation indépendante : `session_20261123_051954` (`100` images issues d'un second tour séparé, `0` image commune avec l'entraînement).
+- **Agent 1 — Perception (`Code/06_Trois_Agents/01_Perception.ipynb`) :**
+  - Passage d'un petit U-Net 2 niveaux `128×96` à un **U-Net 3 niveaux `256×144`** (format 16:9 exact, `217k` paramètres, perte combinée `Cross-Entropy + Soft-Dice`) afin de mieux voir la piste à l'horizon et les vibreurs, tout en restant 100 % rétrocompatible avec les anciennes archives (`contrat=1` et `contrat=2`).
+  - Inférence automatiquement basculée sur **GPU (`cuda`)** dans les modes réels (`hud_direct`, `entrainer_a3`, `evaluer_a3`), avec repli CPU automatique sur les PC sans carte NVIDIA.
+- **Agent 2 — Trajectoire (`Code/06_Trois_Agents/02_Trajectoire.ipynb`) et affichage HUD (`Code/06_Trois_Agents/Capteurs_lecture.ipynb`) :**
+  - Ré-entraînement du planificateur sur des trajectoires perspectives 3D **monotones** ancrées devant le capot (suppression des zigzags et des courbes qui partaient vers l'extérieur avant certains virages).
+  - Comblement ciblé des micro-trous d'ombre strictement entourés de piste (sans jamais masquer un vrai obstacle), secours par arc quadratique lisse et plancher d'horizon calibré `max(117, y_loin + 3)` pour éviter de dépasser la piste au ras du ciel.
+  - Ajout d'un lissage temporel (EMA) et d'un tracé en courbe lisse (`smooth=True`) dans la fenêtre transparente du HUD.
+- **Agent 3 — Pilote PPO et pilotage Assetto Corsa (`03_Pilote_PPO.ipynb`, `Pilotage_Assetto.ipynb`, `00_Poste_de_guidage.ipynb`) :**
+  - Ajout d'un mode dédié **`MODE = 'sauvegarder_checkpoint'`** directement dans `00_Poste_de_guidage.ipynb` pour enregistrer le départ fixe CSP en un clic avant d'entraîner.
+  - Corrections de robustesse télémétrie/Windows : gestion des paquets sans `timestamp_unix` (repli `_received_unix`), lecture du rapport `actualGear`, et boucle de tentatives (retry) sur `os.replace(..., 'command.txt')` pour corriger les `PermissionError [WinError 5]` lors des longs runs CSP.
+  - Ajout d'une pénalité de survitesse (et anti-inertie sur l'accélérateur quand `v > cible`) dans `03_Pilote_PPO.ipynb`, plus lots PPO de `512` pas (`n_epochs = 8`, `lr = 5e-4`) en Stage 4 afin que le pilote apprenne à lever le pied et ralentir avant les virages au lieu de rester plein gaz.
+
+### 3. Réussites validées au 23/11/2026
+
+| Composant / Test (23/11/2026) | Version / Rapport | Résultat mesuré |
+|---|---|---|
+| **Agent 1 (Perception `256×144` 3 niveaux)** | `VERSION_A1 = '20261123_064246_bb00ca1e'` | **`93,46 %`** IoU piste (`92,6 %` sur la bande horizon), **`84,3 %`** herbe, **`43,9 %`** vibreurs sur le 2ᵉ tour indépendant (`100` img) |
+| **Vitesse temps réel (`A1 GPU + A2 CPU`)** | RTX 3050 Ti (`cuda`) | **`13,2 ms/image` (`75,8 FPS`)**, soit 3× la cadence caméra (`25 FPS`) |
+| **Agent 2 (Trajectoire monotone v6)** | `VERSION_A2 = '20261123_064311_1622081c'` | **`460 / 460` (`100 %`) et `0` franchissement** sur les 4 sessions réelles d'Imola ; **`810 / 810`** sur le 2ᵉ tour complet non vu |
+| **Recette hors jeu (`recette_hors_jeu`)** | Automatisée | **100 % passante** (A1 synthétique `96,6 %`, A2, chaîne humaine `0` franchissement, banc A3 `0` sortie, frein sur perte `True`) |
+| **Agent 3 — Stage 1 (`10 m`)** | `20261123_160331_488011fe` (`4 096` pas) · `evaluer_a3_1a647ec1eb.json` | **`10 / 10`** arrivées · `0` sortie · `0` collision · écart moyen `4,9 %` |
+| **Agent 3 — Stage 2 (`30 m`)** | `20261123_163432_5180a890` (`7 168` pas) · `evaluer_a3_796d6e3869.json` | **`10 / 10`** arrivées · `0` sortie · `0` collision · écart moyen `5,1 %` |
+| **Agent 3 — Stage 3 (`100 m`)** | `20261123_163432_5180a890` (`7 168` pas) · `evaluer_a3_dc603bb6c0.json` | **`10 / 10`** arrivées · `0` sortie · `0` collision · écart moyen `8,0 %` |
+| **Agent 3 — Stage 4 (Tour complet `4 906 m`)** | **`VERSION_A3 = '20261123_191455_9f12c152'`** (`31 744` pas) · `evaluer_a3_577e54af5c.json` | **`3 / 3` tours complets validés** (`tour: True`, `4 906,1 m`) · **`0` sortie · `0` collision · `0` perte de guidage** · écart moyen **`4,0 %`** |
+
+### 4. Problèmes et limites actuels (constatés le 23/11/2026)
+
+1. **Perception des virages au loin encore limitée (HUD / A1 + A2) :** même si le HUD tourne de façon fluide en temps réel sans zigzags, il a encore du mal à bien lire et anticiper les virages très lointains ou masqués derrière une crête (contrainte liée à la vision 100 % caméra sans carte du circuit et à la perspective très écrasée à l'horizon).
+2. **Trajectoire « prudente » plutôt que « course » (HUD et A2) :** la ligne reste majoritairement au milieu en ligne droite puis prend la corde avec une marge de sécurité importante, au lieu d'une trajectoire sportive « extérieur → corde → extérieur ».
+3. **Vitesse trop lente en autonomie et sur le HUD :** la tête vitesse de l'Agent 2 est plafonnée à `50 km/h` (`~43 km/h` en ligne droite, `24–30 km/h` en virage). L'Agent 3 respecte ce plafond (max `~50 km/h` en ligne droite) et peut même tomber à `~15 km/h` dans certains virages serrés lorsqu'il braque le volant en butée (`±1,0`), ce qui freine la voiture par frottement.
+4. **Petits zigzags légers en ligne droite (Agent 3) :** la direction apprise par PPO reste un peu nerveuse pour de petits écarts à `8,3 Hz` (`0,12 s`), et la pénalité de variation du volant (`-0,008`) est trop faible pour lisser complètement la conduite.
+5. **Périmètre encore limité à Imola :** les modèles actuels sont entraînés et testés uniquement sur Imola par temps clair et sans trafic (généralisation à d'autres circuits et validation Stage 4 sur `10` épisodes complets encore à faire).
+
+### 5. Reproduire / relancer rapidement (23/11/2026)
+
+Dans [Code/06_Trois_Agents/00_Poste_de_guidage.ipynb](Code/06_Trois_Agents/00_Poste_de_guidage.ipynb) (noyau `p309`, Assetto Corsa sur **Imola / Abarth 500 / vue capot / boîte auto / mode fenêtré**) :
+
+- **Versions de référence du 23/11/2026 :**
+  - `VERSION_A1 = '20261123_064246_bb00ca1e'`
+  - `VERSION_A2 = '20261123_064311_1622081c'`
+  - `VERSION_A3 = '20261123_191455_9f12c152'`
+  - `CADRAGE_REEL = 'capot_abarth500_v1'`, `TRACK = 'imola'`, `VOITURE = 'abarth500'`
+- **Pour tester le HUD en conduite humaine :** `MODE = 'hud_direct'`, `AFFICHAGE = 'superposition'`, puis **Tout exécuter**.
+- **Pour tester le pilote autonome sur un tour complet :**
+  1. Immobiliser la voiture sur la piste (`< 1 km/h`), lancer `MODE = 'sauvegarder_checkpoint'` (à refaire après chaque redémarrage du jeu).
+  2. Lancer `MODE = 'evaluer_a3'` avec `STAGE = 4`, `EPISODES = 3` (ou `10`) et `VERSION_A3 = '20261123_191455_9f12c152'`.
+- *Note Git :* les poids dans `Code/models/` peuvent être ignorés par `.gitignore` ; vérifier qu'ils sont bien partagés séparément si un coéquipier veut rejouer ces versions sans ré-entraîner.

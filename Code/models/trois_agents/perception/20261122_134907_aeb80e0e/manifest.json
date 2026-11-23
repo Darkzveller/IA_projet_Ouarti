@@ -1,0 +1,30 @@
+{
+  "iou_validation_reelle": {
+    "fond": 0.8547137732950781,
+    "piste": 0.8177449075103991,
+    "vibreur": 0.0,
+    "herbe": 0.36672191791347875,
+    "gravier": 0.0,
+    "mur": null,
+    "vehicule_obstacle": null
+  },
+  "images_train": 60,
+  "images_validation": 60,
+  "session_train": "session_20261122_133944",
+  "session_validation": "session_20261122_124950",
+  "domaine": "captures",
+  "classes": [
+    "fond",
+    "piste",
+    "vibreur",
+    "herbe",
+    "gravier",
+    "mur",
+    "vehicule_obstacle"
+  ],
+  "version": "20261122_134907_aeb80e0e",
+  "type_agent": "perception",
+  "contrat": 1,
+  "fichier": "agent.pt",
+  "sha256": "19d6fe74e8a05f9c32460b94afa9a4e610e522059723f198a5a558cad266735c"
+}

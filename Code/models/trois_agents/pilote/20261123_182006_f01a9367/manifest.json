@@ -1,0 +1,17 @@
+{
+  "domaine": "assetto",
+  "cadrage": "capot_abarth500_v1",
+  "perception": "20261123_064246_bb00ca1e",
+  "trajectoire": "20261123_064311_1622081c",
+  "parent": "20261123_180205_9b4ccfea",
+  "track": "imola",
+  "voiture": "abarth500",
+  "pas": 15872,
+  "stage": 4,
+  "objectif_m": null,
+  "version": "20261123_182006_f01a9367",
+  "type_agent": "pilote",
+  "contrat": 1,
+  "fichier": "agent.zip",
+  "sha256": "14e14451625c9ad243c85b71c6b7fda580efe71f167e398c7a131a8423d5c510"
+}

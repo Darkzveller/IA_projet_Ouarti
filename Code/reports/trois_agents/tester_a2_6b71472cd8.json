@@ -1,0 +1,14 @@
+{
+  "directions": [
+    "gauche",
+    "droit",
+    "droite"
+  ],
+  "cibles_kmh": [
+    33.18431854248047,
+    43.98664855957031,
+    32.570186614990234
+  ],
+  "refus_attendus": 4,
+  "version_a2": "20261123_053914_9eab2392"
+}

@@ -1,0 +1,13 @@
+{
+  "domaine": "banc",
+  "perception": null,
+  "trajectoire": null,
+  "pas": 512,
+  "stage": 0,
+  "parent": null,
+  "version": "20261123_055508_10ed8ade",
+  "type_agent": "pilote",
+  "contrat": 1,
+  "fichier": "agent.zip",
+  "sha256": "8492a1ea66a9af45408da8b38df5222ed0d6a6e76e9cfb4b3393c1d2a8c1bf6b"
+}

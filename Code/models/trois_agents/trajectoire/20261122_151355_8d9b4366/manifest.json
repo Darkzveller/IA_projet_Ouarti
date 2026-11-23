@@ -1,0 +1,18 @@
+{
+  "directions": [
+    "gauche",
+    "droit",
+    "droite"
+  ],
+  "cibles_kmh": [
+    25.413780212402344,
+    43.46525573730469,
+    25.86414337158203
+  ],
+  "refus_attendus": 4,
+  "version": "20261122_151355_8d9b4366",
+  "type_agent": "trajectoire",
+  "contrat": 1,
+  "fichier": "agent.pt",
+  "sha256": "570b6aa143513138fb99e7069a89e860aeb14a6762056c31c75c46abbdfb0f9d"
+}

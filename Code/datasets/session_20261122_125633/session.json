@@ -1,0 +1,84 @@
+{
+  "type": "camera_telemetry",
+  "created_at": "2026-11-22T12:56:33.718320",
+  "config": {
+    "sampling_freq": 50,
+    "config_python_env_name": "ouarti_souley",
+    "ego_sampling_freq": 25,
+    "opponents_server_port": 2346,
+    "screen_capture_freq": 25,
+    "screen_capture_save_to_disk": false,
+    "telemetry_sampling_freq": 0,
+    "opponents_server_host_name": "0.0.0.0",
+    "version": "0.0.2-souley",
+    "config_python_executable": "C:\\Users\\sulla\\Desktop\\COURS\\S7\\Projet Info\\Version_souley\\.venv\\Scripts\\python.exe",
+    "relocate_screen": false,
+    "simulation_management_server_port": 2347,
+    "final_image_width": 640,
+    "sampling_time": 0.02,
+    "enable_alternative_python_interpreter": true,
+    "vjoy_executed_by_server": false,
+    "simulation_management_server_host_name": "0.0.0.0",
+    "color_mode": "bgr",
+    "ego_server_host_name": "0.0.0.0",
+    "screen_capture_worker": "screen_capture_worker.py",
+    "trigger_image_capture_event_name": "Local\\TriggerImageCapture",
+    "screen_capture_save_path": "captures",
+    "enable_profiler": false,
+    "ego_sampling_freq_event_name": "Local\\EgoSamplingFreqEvent",
+    "screen_capture_verbose": false,
+    "final_image_height": 360,
+    "ego_server_port": 2345,
+    "screen_capture_enable": true
+  },
+  "static": {
+    "CAR_TRACK": 1.399457106836902,
+    "TrackLength": 4864.107421875,
+    "LastSplits": [
+      0,
+      0,
+      0
+    ],
+    "CarName": "abarth500",
+    "TrackName": "imola",
+    "TyreContactPoint_RR": [
+      608.6129150390625,
+      -63.361515045166016,
+      -204.61883544921875
+    ],
+    "TyreContactPoint_FL": [
+      609.2020874023438,
+      -63.43596649169922,
+      -207.23983764648438
+    ],
+    "autoShifterOn": 1,
+    "isCarInPitlane": 0,
+    "WindDirection": 0,
+    "TrackConfiguration": "",
+    "CAR_WHEEL_R": [
+      0.3081499934196472,
+      0.3081499934196472,
+      0.3081499934196472,
+      0.3081499934196472
+    ],
+    "TyreContactPoint_FR": [
+      610.209228515625,
+      -63.43201446533203,
+      -206.26358032226562
+    ],
+    "TyreContactPoint_RL": [
+      607.6080322265625,
+      -63.36559295654297,
+      -205.59283447265625
+    ],
+    "CAR_WHEELBASE": 2.2931602195409932,
+    "WindSpeed": 10,
+    "penaltiesEnabled": 1,
+    "WorldPosition": [
+      609.1431884765625,
+      -62.87529373168945,
+      -206.1739959716797
+    ],
+    "isCarInPit": 0
+  }
+}

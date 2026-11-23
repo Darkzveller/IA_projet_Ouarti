@@ -1,0 +1,24 @@
+{
+  "track": "imola",
+  "car": "abarth500",
+  "capabilities": {
+    "full_snapshot": true,
+    "position_fallback": false,
+    "offline": true
+  },
+  "status": "ETAT COMPLET: imola / abarth500",
+  "anchor": {
+    "track": "imola",
+    "car": "abarth500",
+    "x": -389.5080871582031,
+    "y": 208.05194091796875,
+    "yaw": -1.5083204507827759,
+    "created_at": 1795445424.9060035,
+    "note": "Checkpoint CSP en memoire, non reutilisable apres redemarrage du jeu."
+  },
+  "selections": [
+    "20261123_064246_bb00ca1e",
+    "20261123_064311_1622081c",
+    ""
+  ]
+}

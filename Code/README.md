@@ -4,6 +4,38 @@
 
 Ouvrir le [poste de guidage](06_Trois_Agents/00_Poste_de_guidage.ipynb) pour utiliser la perception et la trajectoire avec un pilote humain. Le troisième agent PPO se charge dans les modes de pilotage et de test qui le demandent. Le [protocole de recette](06_Trois_Agents/PROTOCOLE.md) couvre les essais isolés, l’affichage en direct et le pilotage optionnel. Les carnets PPO V3 décrits plus bas correspondent au prototype monolithique archivé.
 
+### Mise à jour du 23/11/2026 — État des trois agents (Imola, vue capot)
+
+> **Résumé au 23/11/2026 :** la chaîne complète `06_Trois_Agents/` a été passée en **vue capot (`capot_abarth500_v1`) sur Imola / Abarth 500** (`bgr 640×360`, 100 % caméra). Le HUD temps réel tourne à **`75,8 FPS`** sur GPU (mais a encore du mal à bien percevoir les virages au loin) et l'Agent 3 PPO a bouclé **`3/3` tours complets d'Imola (`4 906 m`) sans sortie ni collision**.
+
+#### Modifications effectuées le 23/11/2026 dans `Code/06_Trois_Agents/`
+
+| Notebook | Changements apportés le 23/11/2026 |
+|---|---|
+| `01_Perception.ipynb` | U-Net 3 niveaux `256×144` (16:9 exact) + perte `CE + Soft-Dice`, entraîné sur `240` images propres (`session_20261123_045440`) et validé sur `100` images d'un 2ᵉ tour indépendant (`session_20261123_051954`) ; inférence GPU automatique avec repli CPU ; rétrocompatible `contrat=1/2`. |
+| `02_Trajectoire.ipynb` | Trajectoire monotone v6 ancrée devant le capot (sans bombements extérieurs), comblement ciblé des micro-trous d'ombre, secours en arc quadratique lisse et plancher d'horizon `max(117, y_loin + 3)`. |
+| `Capteurs_lecture.ipynb` | Lissage temporel EMA (`0,35` position, `0,25` vitesse) + rendu courbe `smooth=True` dans l'overlay HUD. |
+| `03_Pilote_PPO.ipynb` | Pénalité de survitesse et anti-inertie gaz lorsque `v > cible`, permettant à PPO d'apprendre à lever le pied et ralentir avant les virages. |
+| `Pilotage_Assetto.ipynb` | Repli paresseux `_received_unix` si `timestamp_unix` absent, lecture de `actualGear`, et boucle de retry Windows sur `os.replace(..., 'command.txt')` contre les `PermissionError [WinError 5]` du pont CSP. |
+| `00_Poste_de_guidage.ipynb` | Ajout de `MODE = 'sauvegarder_checkpoint'` (sauvegarde CSP en 1 clic), bascule GPU auto pour A1 en mode réel, lots Stage 4 à `512` pas (`n_epochs=8`, `lr=5e-4`), versions mises à jour. |
+
+#### Réussites et versions de référence (23/11/2026)
+
+- **Agent 1 (`VERSION_A1 = '20261123_064246_bb00ca1e'`) :** `93,46 %` IoU piste (`92,6 %` horizon), `84,3 %` herbe, `43,9 %` vibreurs ; pipeline `A1 GPU + A2 CPU` en **`13,2 ms/image` (`75,8 FPS`)**.
+- **Agent 2 (`VERSION_A2 = '20261123_064311_1622081c'`) :** **`460 / 460` (`100 %`) et `0` franchissement** sur les 4 sessions annotées d'Imola ; `810 / 810` sur tout le 2ᵉ tour non vu.
+- **Agent 3 (`VERSION_A3 = '20261123_191455_9f12c152'`, `31 744` pas PPO) :** Stage 1 (`10 m`) `10/10`, Stage 2 (`30 m`) `10/10`, Stage 3 (`100 m`) `10/10`, et **Stage 4 (tour complet `4 906 m`) `3/3` tours validés** (`0` sortie, `0` collision, `0` perte de guidage, écart moyen `4,0 %` — rapport `reports/trois_agents/evaluer_a3_577e54af5c.json`).
+- **Recette hors jeu (`recette_hors_jeu`) :** 100 % passante.
+
+#### Problèmes et limites actuels (23/11/2026)
+
+- **Virages au loin (HUD / A1 + A2) :** le HUD est fluide en temps réel mais a encore du mal à percevoir et anticiper les virages très lointains ou masqués derrière une crête (vision pure sans carte du circuit).
+- **Vitesse trop lente (`≤ 50 km/h` en ligne droite, jusqu'à `~15 km/h` en virage) :** la vitesse cible d'A2 est plafonnée à `50 km/h` (`12 + 38 × sigmoid`), et l'Agent 3 braque parfois le volant en butée (`±1,0`) dans les virages serrés, ce qui freine la voiture par frottement.
+- **Petits zigzags légers en ligne droite (Agent 3) :** gain de volant trop vif à `8,3 Hz` et pénalité de lissage volant trop faible (`-0,008`).
+- **Trajectoire prudente (« milieu → corde ») :** pas encore de trajectoire sportive « extérieur → corde → extérieur ».
+- **Généralisation :** entraîné et validé uniquement sur Imola par temps sec sans trafic ; évaluation Stage 4 encore à étendre de `3` à `10` épisodes.
+
+---
+
 **Architecture actuelle :** notebooks Jupyter autonomes sous Python global **3.9.13**, avec le dossier `Code/` à la racine du dépôt, à côté de `assetto_corsa_gym/`. Ce document réunit le README du dossier `Code` et le journal technique **OUARTI — mise en service**, sans remplacer le README général du dépôt.
 
 > **État validé sur le PC :** noyau Jupyter, connexion au simulateur, télémétrie, volant vJoy, pédales vJoy et capture caméra. **Non encore validés :** synchronisation complète des images et de la télémétrie, entraînement PPO et pilotage autonome.
@@ -12,6 +44,7 @@ Ouvrir le [poste de guidage](06_Trois_Agents/00_Poste_de_guidage.ipynb) pour uti
 
 ## Sommaire
 
+- [Mise à jour du 23/11/2026 — État des trois agents (Imola, vue capot)](#mise-à-jour-du-23112026--état-des-trois-agents-imola-vue-capot)
 - [Présentation et architecture Jupyter](#présentation--code-jupyter-autonome-python-39)
 - [Emplacement du dossier dans le dépôt](#emplacement-du-dossier-dans-le-dépôt)
 - [Démarrage](#démarrage)

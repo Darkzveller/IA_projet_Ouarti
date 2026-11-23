@@ -1,0 +1,84 @@
+{
+  "type": "camera_telemetry",
+  "created_at": "2026-11-22T13:39:44.626552",
+  "config": {
+    "version": "0.0.2-souley",
+    "screen_capture_worker": "screen_capture_worker.py",
+    "ego_server_host_name": "0.0.0.0",
+    "opponents_server_port": 2346,
+    "ego_server_port": 2345,
+    "screen_capture_save_path": "captures",
+    "relocate_screen": false,
+    "sampling_freq": 50,
+    "screen_capture_enable": true,
+    "screen_capture_freq": 25,
+    "config_python_env_name": "ouarti_souley",
+    "enable_profiler": false,
+    "trigger_image_capture_event_name": "Local\\TriggerImageCapture",
+    "simulation_management_server_host_name": "0.0.0.0",
+    "telemetry_sampling_freq": 0,
+    "simulation_management_server_port": 2347,
+    "opponents_server_host_name": "0.0.0.0",
+    "screen_capture_save_to_disk": false,
+    "ego_sampling_freq_event_name": "Local\\EgoSamplingFreqEvent",
+    "screen_capture_verbose": false,
+    "final_image_height": 360,
+    "vjoy_executed_by_server": false,
+    "ego_sampling_freq": 25,
+    "sampling_time": 0.02,
+    "final_image_width": 640,
+    "enable_alternative_python_interpreter": true,
+    "color_mode": "bgr",
+    "config_python_executable": "C:\\Users\\sulla\\Desktop\\COURS\\S7\\Projet Info\\Version_souley\\.venv\\Scripts\\python.exe"
+  },
+  "static": {
+    "TyreContactPoint_RR": [
+      119.6572265625,
+      -56.55227279663086,
+      -13.862112045288086
+    ],
+    "TyreContactPoint_FL": [
+      121.94882202148438,
+      -56.522422790527344,
+      -15.263055801391602
+    ],
+    "penaltiesEnabled": 1,
+    "WindDirection": 0,
+    "isCarInPitlane": 0,
+    "CAR_TRACK": 1.3994436274618414,
+    "TyreContactPoint_RL": [
+      119.65636444091797,
+      -56.54539489746094,
+      -15.2615385055542
+    ],
+    "autoShifterOn": 1,
+    "TyreContactPoint_FR": [
+      121.94866180419922,
+      -56.52882766723633,
+      -13.860068321228027
+    ],
+    "LastSplits": [
+      0,
+      0,
+      0
+    ],
+    "TrackLength": 4864.107421875,
+    "CAR_WHEEL_R": [
+      0.3081499934196472,
+      0.3081499934196472,
+      0.3081499934196472,
+      0.3081499934196472
+    ],
+    "CarName": "abarth500",
+    "WindSpeed": 10,
+    "WorldPosition": [
+      121.12081909179688,
+      -56.00187683105469,
+      -14.559049606323242
+    ],
+    "isCarInPit": 0,
+    "TrackConfiguration": "",
+    "CAR_WHEELBASE": 2.2925731784569074,
+    "TrackName": "imola"
+  }
+}

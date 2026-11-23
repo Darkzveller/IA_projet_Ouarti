@@ -1,0 +1,21 @@
+{
+  "iou_validation_reelle": {
+    "fond": 0.9271494796991638,
+    "piste": 0.9338742580135969,
+    "vibreur": 0.07157894736842105,
+    "herbe": 0.6368524596848179,
+    "gravier": 0.0,
+    "mur": null,
+    "vehicule_obstacle": null
+  },
+  "images_train": 60,
+  "images_validation": 60,
+  "session_train": "session_20261122_133944",
+  "session_validation": "session_20261122_124950",
+  "version_a1": "20261122_151439_5c88441a",
+  "selections": [
+    "20261122_151439_5c88441a",
+    "20261122_151355_8d9b4366",
+    ""
+  ]
+}

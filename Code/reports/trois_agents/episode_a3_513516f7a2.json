@@ -1,0 +1,15 @@
+{
+  "episode": 1,
+  "arrivee": true,
+  "tour": true,
+  "sortie": false,
+  "collision": false,
+  "perte_guidage": null,
+  "progression_m": 4906.13406731529,
+  "ecart_image_moyen": 0.04030266836246714,
+  "versions": [
+    "20261123_064246_bb00ca1e",
+    "20261123_064311_1622081c",
+    "20261123_191455_9f12c152"
+  ]
+}
